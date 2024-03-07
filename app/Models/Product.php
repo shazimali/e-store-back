@@ -13,6 +13,7 @@ class Product extends Model
         'sku',
         'code',
         'status',
+        'sale_price',
         'created_at',
         'updated_at'
     ];

@@ -36,6 +36,9 @@ class StoreProductRequest extends JsonFormRequest
                 'required',
                 'unique:products,sku'
             ],
+            'sale_price' => [
+                'required',
+            ],
             'status' => [
                 'required',
             ],

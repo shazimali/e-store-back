@@ -21,6 +21,8 @@ class StoresController extends Controller
             ->orWhere('email','LIKE',"%{$request->search}%")
             ->orWhere('phone','LIKE',"%{$request->search}%")
             ->orWhere('status','LIKE',"%{$request->search}%")
+            ->orWhere('ntn','LIKE',"%{$request->search}%")
+            ->orWhere('sale_tax_number','LIKE',"%{$request->search}%")
             ->paginate($request->item_per_page);
         }
         return StoreListResource::collection($stores);

@@ -20,6 +20,7 @@ class ProductsController extends Controller
             ->orWhere('code','LIKE',"%{$request->search}%")
             ->orWhere('sku','LIKE',"%{$request->search}%")
             ->orWhere('status','LIKE',"%{$request->search}%")
+            ->orWhere('sale_price','LIKE',"%{$request->search}%")
             ->paginate($request->item_per_page);
         }
 

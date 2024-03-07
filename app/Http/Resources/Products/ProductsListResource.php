@@ -18,6 +18,7 @@ class ProductsListResource extends JsonResource
             'id' => $this->id,
             'sku' => $this->sku,           
             'code' => $this->code,           
+            'sale_price' => $this->sale_price,           
             'name' => $this->name,           
             'status' => $this->status,
             'created_at' => $this->created_at->toDateString()

@@ -35,6 +35,9 @@ class UpdateProductRequest extends JsonFormRequest
                 'required',
                 'unique:products,sku,'.$this->id
             ],
+            'sale_price' => [
+                'required'
+            ],
             'status' => [
                 'required'
             ],
