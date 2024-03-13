@@ -28,6 +28,9 @@ class StoreProductRequest extends JsonFormRequest
             'name'     => [
                 'required',
             ],
+            'store_id'     => [
+                'required',
+            ],
             'code' => [
                 'required',
                 'unique:products,code'

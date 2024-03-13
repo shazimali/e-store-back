@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\BranchesController;
 use App\Http\Controllers\DeliverablesController;
 use App\Http\Controllers\UsersController;
 use App\Http\Controllers\RolesController;
@@ -54,9 +55,19 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::put('/update/{id}',[StoresController::class, 'update']);
     });
 
+    //Branches
+    Route::prefix('/branches')->group(function () {
+        Route::get('/',[BranchesController::class, 'index']);
+        Route::get('/create',[BranchesController::class, 'create']);
+        Route::post('/save',[BranchesController::class, 'save']);
+        Route::get('/edit/{id}',[BranchesController::class, 'edit']);
+        Route::put('/update/{id}',[BranchesController::class, 'update']);
+    });
+
     //Products
     Route::prefix('/products')->group(function () {
         Route::get('/',[ProductsController::class, 'index']);
+        Route::get('/create',[ProductsController::class, 'create']);
         Route::post('/store',[ProductsController::class, 'store']);
         Route::get('/edit/{id}',[ProductsController::class, 'edit']);
         Route::post('/update/{id}',[ProductsController::class, 'update']);
