@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreProductRequest;
 use App\Http\Requests\UpdateProductRequest;
+use App\Http\Requests\UpdateProductSalePriceRequest;
 use App\Http\Resources\Products\ProductsListResource;
 use App\Models\Product;
 use App\Models\Store;
@@ -85,5 +86,12 @@ class ProductsController extends Controller
             return  response()->json(['error' => 'Error in saving product.'],422);
         }
 
+    }
+
+    function updateSalePrice($id,UpdateProductSalePriceRequest $request) {
+        $product = Product::find($id);
+        $product->sale_price = $request->sale_price;
+        $product->save();
+        return  response()->json('Sale price updated successfully.');
     }
 }

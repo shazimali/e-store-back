@@ -30,6 +30,13 @@ class StoreDeliverableRequest extends JsonFormRequest
             'store_id' => [
                 'required'
             ],
+            'branch_id' => [
+                'required'
+            ],
+            'sr_number' => [
+                'required',
+                'unique:deliverables,sr_number'
+            ],
             'products' => [
                 'required',
                 'array'

@@ -3,14 +3,18 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreDeliverableRequest;
+use App\Http\Resources\BranchListResource;
 use App\Http\Resources\DeliverableEditResource;
 use App\Http\Resources\DeliverableListResource;
+use App\Http\Resources\DeliverableShowResource;
 use App\Http\Resources\Products\ProductsListResource;
 use App\Http\Resources\StoreListResource;
+use App\Models\Branch;
 use App\Models\Deliverable;
 use App\Models\DeliverableDetail;
 use App\Models\Product;
 use App\Models\Store;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 
 class DeliverablesController extends Controller
@@ -31,18 +35,24 @@ class DeliverablesController extends Controller
 
     function create() {
         $this->authorize('purchase_create');
+        return response()->json(StoreListResource::collection(Store::all()));
+    }
 
+    function fetchStoreBranchesProducts($id) {
+        $this->authorize('purchase_create');
         return response()->json([
-            'products' => ProductsListResource::collection(Product::all()),
-            'stores' => StoreListResource::collection(Store::all()),
-        ]);
+            'products' => ProductsListResource::collection(Product::where('store_id',$id)->get()),
+            'branches' => BranchListResource::collection(Branch::where('store_id',$id)->get())
+        ]); 
     }
 
     function store(StoreDeliverableRequest $request) {
         $this->authorize('purchase_save');
-
+        $now = Carbon::now();
         $data = $request->all();
-        $data['invoice_id'] = Deliverable::count() > 0 ? Deliverable::latest('id')->first()->id+1 : 1;
+        $data['invoice_id'] =  Deliverable::count() > 0 ?  Deliverable::latest('id')->first()->invoice_id+1 :1;
+        $data['invoice_prefix'] =  $now->year;
+        $data['invoice_sr_number'] =  $data['invoice_prefix'].str_pad($data['invoice_id'],5,'0',STR_PAD_LEFT);
         $deliverable = Deliverable::create($data);
 
         foreach ($request->products as $key => $product) {
@@ -54,7 +64,11 @@ class DeliverablesController extends Controller
                 'date' => $request['date']
             ]);
         }
-        return  response()->json('Deliverable saved successfully!');
+        return  response()->json($deliverable->id);
+    }
+
+    function fetchDeliverableById($id) {
+        return new DeliverableShowResource(Deliverable::where('id',$id)->first());
     }
 
     function edit($id) {

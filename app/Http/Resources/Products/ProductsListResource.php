@@ -18,7 +18,7 @@ class ProductsListResource extends JsonResource
             'id' => $this->id,
             'sku' => $this->sku,           
             'code' => $this->code,           
-            'store' => $this->store->name,           
+            'store' => $this->store ? $this->store->name : [],           
             'sale_price' => $this->sale_price,           
             'name' => $this->name,           
             'status' => $this->status,

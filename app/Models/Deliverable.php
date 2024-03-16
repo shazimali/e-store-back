@@ -11,15 +11,24 @@ class Deliverable extends Model
 
     protected $fillable = [
         'store_id',
+        'branch_id',
+        'sr_number',
         'total_qty',
         'invoice_id',
+        'invoice_prefix',
+        'invoice_sr_number',
         'date',
+        'order_date',
         'created_at',
         'updated_at'
     ];
 
     public function store() {
         return $this->hasOne(Store::class,'id','store_id');
+    }
+
+    public function branch() {
+        return $this->hasOne(Branch::class,'id','branch_id');
     }
 
     public function details()

@@ -3,7 +3,7 @@
 namespace App\Http\Requests;
 
 use App\Http\Requests\JsonFormRequest;
-
+use Illuminate\Validation\Rule;
 
 class StoreProductRequest extends JsonFormRequest
 {
@@ -33,11 +33,13 @@ class StoreProductRequest extends JsonFormRequest
             ],
             'code' => [
                 'required',
-                'unique:products,code'
+                // 'unique:products,code'
+                Rule::unique('products','code')->where('store_id',$this->store_id),
             ],
             'sku' => [
                 'required',
-                'unique:products,sku'
+                // 'unique:products,sku'
+                Rule::unique('products','sku')->where('store_id',$this->store_id),
             ],
             'sale_price' => [
                 'required',

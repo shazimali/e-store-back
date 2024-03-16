@@ -17,9 +17,11 @@ return new class extends Migration
             $table->id();
             $table->string('name');
             $table->enum('status',['ACTIVE','INACTIVE'])->default('ACTIVE');
-            $table->string('sku')->unique();
-            $table->string('code')->unique();
+            $table->string('sku');
+            $table->string('code');
             $table->string('image')->nullable();
+            $table->decimal('sale_price', 10,2);
+            $table->integer('store_id');
             $table->timestamps();
         });
     }

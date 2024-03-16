@@ -71,6 +71,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::post('/store',[ProductsController::class, 'store']);
         Route::get('/edit/{id}',[ProductsController::class, 'edit']);
         Route::post('/update/{id}',[ProductsController::class, 'update']);
+        Route::put('/update/sale-price/{id}',[ProductsController::class, 'updateSalePrice']);
     });
 
     //Purchases
@@ -86,8 +87,10 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::prefix('/deliverables')->group(function () {
         Route::get('/',[DeliverablesController::class, 'index']);
         Route::get('/create',[DeliverablesController::class, 'create']);
+        Route::get('/store-branches-products/{id}',[DeliverablesController::class, 'fetchStoreBranchesProducts']);
         Route::post('/store',[DeliverablesController::class, 'store']);
         Route::get('/edit/{id}',[DeliverablesController::class, 'edit']);
+        Route::get('/fetch-deliverable-for-print/{id}',[DeliverablesController::class, 'fetchDeliverableById']);
         Route::put('/update/{id}',[DeliverablesController::class, 'update']);
     });
     

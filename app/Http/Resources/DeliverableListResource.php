@@ -16,7 +16,7 @@ class DeliverableListResource extends JsonResource
     {
         return [
             'id' => $this->id,
-            'invoice_id' => $this->invoice_id,
+            'invoice_id' => $this->invoice_sr_number,
             'date' => $this->date,
             'store' => $this->store->name,
             'total_qty' => $this->total_qty,
