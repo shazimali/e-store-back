@@ -15,7 +15,7 @@ class PurchaseRelationProductsResource extends JsonResource
     public function toArray($request)
     {
         return [
-            'id' => $this->id,
+            'id' => $this->product->id,
             'date' => $this->date,
             'name'=> $this->product->name,
             'code'=> $this->product->code,

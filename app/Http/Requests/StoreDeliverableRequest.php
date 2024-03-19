@@ -27,6 +27,9 @@ class StoreDeliverableRequest extends JsonFormRequest
             'date'     => [
                 'required'
             ],
+            'remarks'     => [
+                'required'
+            ],
             'store_id' => [
                 'required'
             ],

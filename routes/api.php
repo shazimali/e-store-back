@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\BranchesController;
+use App\Http\Controllers\CompanyController;
 use App\Http\Controllers\DeliverablesController;
 use App\Http\Controllers\UsersController;
 use App\Http\Controllers\RolesController;
@@ -93,7 +94,12 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::get('/fetch-deliverable-for-print/{id}',[DeliverablesController::class, 'fetchDeliverableById']);
         Route::put('/update/{id}',[DeliverablesController::class, 'update']);
     });
-    
+    //company
+    Route::prefix('/company-detail')->group(function () {
+        Route::get('/',[CompanyController::class, 'get']);
+        Route::post('/update',[CompanyController::class, 'update']);
+    });
+
 
 });
 

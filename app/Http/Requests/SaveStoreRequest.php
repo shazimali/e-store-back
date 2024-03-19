@@ -26,6 +26,7 @@ class SaveStoreRequest extends JsonFormRequest
         return [
             'name' => 'required',
             'status' => 'required',
+            'is_sr' => 'required',
             'city_id' => 'required',
             'status' => 'required',
             'email' => 'nullable|email',

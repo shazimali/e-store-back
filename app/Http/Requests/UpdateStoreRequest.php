@@ -26,6 +26,7 @@ class UpdateStoreRequest extends JsonFormRequest
         return [
             'name' => 'required',
             'status' => 'required',
+            'is_sr' => 'required',
             'city_id' => 'required',
             'email' => 'nullable|email',
             'code' => 'required|unique:stores,code,'.$this->id,

@@ -14,6 +14,7 @@ class Deliverable extends Model
         'branch_id',
         'sr_number',
         'total_qty',
+        'remarks',
         'invoice_id',
         'invoice_prefix',
         'invoice_sr_number',

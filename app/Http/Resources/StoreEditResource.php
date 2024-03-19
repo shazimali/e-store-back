@@ -19,6 +19,7 @@ class StoreEditResource extends JsonResource
             'status' => $this->status,
             'code' => $this->code,
             'ntn' => $this->ntn,
+            'is_sr' => $this->is_sr,
             'sale_tax_number' => $this->sale_tax_number,
             'address' => $this->address,
             'phone' => $this->phone,

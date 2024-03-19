@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources;
 
+use App\Models\CompanyDetail;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class DeliverableEditResource extends JsonResource
@@ -15,13 +16,15 @@ class DeliverableEditResource extends JsonResource
     public function toArray($request)
     {
         return [
-            'id' => $this->id,
-            'invoice_id' => $this->invoice_id,
+            'invoice_sr_number' => $this->invoice_sr_number,
             'date' => $this->date,
+            'remarks' => $this->remarks,
+            'branch_id' => $this->branch_id,
+            'sr_number' => $this->sr_number,
             'store_id' => $this->store_id,
+            'order_date' => $this->order_date,
             'products'=> PurchaseRelationProductsResource::collection($this->details),
             'total_qty' => $this->total_qty,
-            'created_at' => $this->created_at->toDateString(),
         ];
     }
 }
