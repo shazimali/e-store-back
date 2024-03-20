@@ -23,10 +23,10 @@ class DeliverablesController extends Controller
 {
     function index(Request $request) {
         $this->authorize('deliverable_access');
-        $deliverables = Deliverable::paginate($request->item_per_page);
+        $deliverables = Deliverable::NotReturn()->paginate($request->item_per_page);
         
         if($request->search){
-            $deliverables = Deliverable::where('store_id','LIKE',"%{$request->search}%")
+            $deliverables = Deliverable::NotReturn()->where('store_id','LIKE',"%{$request->search}%")
             ->orWhere('total_qty','LIKE',"%{$request->search}%")
             ->orWhere('date','LIKE',"%{$request->search}%")
             ->paginate($request->item_per_page);
@@ -51,7 +51,7 @@ class DeliverablesController extends Controller
     function store(StoreDeliverableRequest $request) {
         $this->authorize('deliverable_save');
         $data = $request->all();
-        $data['invoice_id'] =  Deliverable::count() > 0 ?  Deliverable::latest('id')->first()->invoice_id+1 :1;
+        $data['invoice_id'] =  Deliverable::NotReturn()->NotCleared()->count() > 0 ?  Deliverable::NotReturn()->NotCleared()->latest('id')->first()->invoice_id+1 :1;
         $data['invoice_prefix'] =  CompanyDetail::first()->del_px;
         $data['invoice_sr_number'] =  $data['invoice_prefix'].str_pad($data['invoice_id'],5,'0',STR_PAD_LEFT);
         $deliverable = Deliverable::create($data);
@@ -88,7 +88,7 @@ class DeliverablesController extends Controller
         $deliverable = Deliverable::where('id',$id)->first();
         $deliverable->update([
                 "date" => $request->date,
-                "date" => $request->order_date,
+                "order_date" => $request->order_date,
                 "store_id" => $request->store_id,
                 "branch_id" => $request->branch_id,
                 "sr_number" => $request->sr_number,

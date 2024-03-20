@@ -12,6 +12,9 @@ class Deliverable extends Model
     protected $fillable = [
         'store_id',
         'branch_id',
+        'is_return',
+        'is_clear',
+        'return_type',
         'sr_number',
         'total_qty',
         'remarks',
@@ -23,6 +26,16 @@ class Deliverable extends Model
         'created_at',
         'updated_at'
     ];
+
+    public function scopeReturn() {
+        return $this->where('is_return', 1);
+    }
+    public function scopeNotReturn() {
+        return $this->where('is_return', 0);
+    }
+    public function scopeNotCleared() {
+        return $this->where('is_clear', 0);
+    }
 
     public function store() {
         return $this->hasOne(Store::class,'id','store_id');

@@ -9,6 +9,7 @@ use App\Http\Controllers\UsersController;
 use App\Http\Controllers\RolesController;
 use App\Http\Controllers\ProductsController;
 use App\Http\Controllers\PurchasesController;
+use App\Http\Controllers\ReturnDeliverablesController;
 use App\Http\Controllers\StoresController;
 
 /*
@@ -93,6 +94,16 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::get('/edit/{id}',[DeliverablesController::class, 'edit']);
         Route::get('/fetch-deliverable-for-print/{id}',[DeliverablesController::class, 'fetchDeliverableById']);
         Route::put('/update/{id}',[DeliverablesController::class, 'update']);
+    });
+    //Return Deliverables
+    Route::prefix('/return-deliverables')->group(function () {
+        Route::get('/',[ReturnDeliverablesController::class, 'index']);
+        Route::get('/create',[ReturnDeliverablesController::class, 'create']);
+        Route::get('/store-branches-products/{id}',[ReturnDeliverablesController::class, 'fetchStoreBranchesProducts']);
+        Route::post('/store',[ReturnDeliverablesController::class, 'store']);
+        Route::get('/edit/{id}',[ReturnDeliverablesController::class, 'edit']);
+        Route::get('/fetch-deliverable-for-print/{id}',[ReturnDeliverablesController::class, 'fetchDeliverableById']);
+        Route::put('/update/{id}',[ReturnDeliverablesController::class, 'update']);
     });
     //company
     Route::prefix('/company-detail')->group(function () {
