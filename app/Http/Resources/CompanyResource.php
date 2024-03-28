@@ -17,6 +17,9 @@ class CompanyResource extends JsonResource
         return [
             'ntn' => $this->ntn,
             'strn' => $this->strn,
+            'sale_tax' => $this->sale_tax,
+            'ext_tax' => $this->ext_tax,
+            'strn' => $this->strn,
             'address' => $this->address,
             'phone' => $this->phone,
             'del_px' => $this->del_px,

@@ -5,6 +5,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\BranchesController;
 use App\Http\Controllers\CompanyController;
 use App\Http\Controllers\DeliverablesController;
+use App\Http\Controllers\InvoicesController;
 use App\Http\Controllers\UsersController;
 use App\Http\Controllers\RolesController;
 use App\Http\Controllers\ProductsController;
@@ -104,6 +105,16 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::get('/edit/{id}',[ReturnDeliverablesController::class, 'edit']);
         Route::get('/fetch-deliverable-for-print/{id}',[ReturnDeliverablesController::class, 'fetchDeliverableById']);
         Route::put('/update/{id}',[ReturnDeliverablesController::class, 'update']);
+    });
+    //Invoices
+    Route::prefix('/invoices')->group(function () {
+        Route::get('/',[InvoicesController::class, 'index']);
+        Route::get('/create',[InvoicesController::class, 'create']);
+        Route::get('/store-branches-products/{id}',[InvoicesController::class, 'fetchStoreBranchesProducts']);
+        Route::post('/store',[InvoicesController::class, 'store']);
+        // Route::get('/edit/{id}',[ReturnDeliverablesController::class, 'edit']);
+        Route::get('/fetch-invoice-for-print/{id}',[InvoicesController::class, 'fetchInvoiceById']);
+        // Route::put('/update/{id}',[ReturnDeliverablesController::class, 'update']);
     });
     //company
     Route::prefix('/company-detail')->group(function () {
