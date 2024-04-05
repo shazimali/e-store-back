@@ -20,6 +20,7 @@ class PurchaseRelationProductsResource extends JsonResource
             'name'=> $this->product->name,
             'code'=> $this->product->code,
             'sku'=> $this->product->sku,
+            'available_qty'=> $this->product->availableQty(),
             'qty' => $this->qty,
             'price' => $this->price,
             'created_at' => $this->created_at->toDateString(),

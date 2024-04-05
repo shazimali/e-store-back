@@ -19,6 +19,7 @@ class InvoiceListResoruce extends JsonResource
             'invoice_id' => $this->invoice_id,
             'date' => $this->date,
             'store' => $this->store->name,
+            'discount' => $this->discount,
             'branch' => $this->branch->name,
             'total_qty' => $this->total_qty,
             'total_price' => $this->total_price,

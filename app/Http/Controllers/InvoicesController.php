@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreInvoiceRequest;
 use App\Http\Resources\BranchListResource;
+use App\Http\Resources\CompanyResource;
 use App\Http\Resources\InvoiceListResoruce;
 use App\Http\Resources\InvoiceShowResource;
 use App\Http\Resources\ProductInvoiceShowResource;
@@ -36,7 +37,10 @@ class InvoicesController extends Controller
 
     function create() {
         $this->authorize('deliverable_create');
-        return response()->json(StoreListResource::collection(Store::all()));
+        return response()->json([
+            'stores' => StoreListResource::collection(Store::all()),
+            'company' => new CompanyResource(CompanyDetail::take(1)->first()),
+        ]);
     }
 
     function fetchStoreBranchesProducts($id) {

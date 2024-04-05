@@ -14,6 +14,7 @@ class Invoice extends Model
         'sr_number',
         'store_id',
         'date',
+        'discount',
         'branch_id',
         'total_qty',
         'total_price',

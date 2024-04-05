@@ -13,6 +13,7 @@ class Store extends Model
         'name',
         'status',
         'ntn',
+        'discount',
         'is_sr',
         'sale_tax_number',
         'address',

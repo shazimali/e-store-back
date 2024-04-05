@@ -20,4 +20,8 @@ class DeliverableDetail extends Model
     public function product() {
         return $this->hasOne(Product::class,'id','product_id');
     }
+
+    public function deliverable() {
+        return $this->belongsTo(Deliverable::class,'id','deliverable_id');
+    }
 }

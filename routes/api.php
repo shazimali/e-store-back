@@ -11,6 +11,7 @@ use App\Http\Controllers\RolesController;
 use App\Http\Controllers\ProductsController;
 use App\Http\Controllers\PurchasesController;
 use App\Http\Controllers\ReturnDeliverablesController;
+use App\Http\Controllers\StocksController;
 use App\Http\Controllers\StoresController;
 
 /*
@@ -100,7 +101,8 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::prefix('/return-deliverables')->group(function () {
         Route::get('/',[ReturnDeliverablesController::class, 'index']);
         Route::get('/create',[ReturnDeliverablesController::class, 'create']);
-        Route::get('/store-branches-products/{id}',[ReturnDeliverablesController::class, 'fetchStoreBranchesProducts']);
+        Route::get('/store-branches/{id}',[ReturnDeliverablesController::class, 'getBranchesByStoreId']);
+        Route::get('/branch-products/{id}',[ReturnDeliverablesController::class, 'getProductsByBranchId']);
         Route::post('/store',[ReturnDeliverablesController::class, 'store']);
         Route::get('/edit/{id}',[ReturnDeliverablesController::class, 'edit']);
         Route::get('/fetch-deliverable-for-print/{id}',[ReturnDeliverablesController::class, 'fetchDeliverableById']);
@@ -120,6 +122,12 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::prefix('/company-detail')->group(function () {
         Route::get('/',[CompanyController::class, 'get']);
         Route::post('/update',[CompanyController::class, 'update']);
+    });
+    //stock
+    Route::prefix('/stocks')->group(function () {
+        Route::get('/',[StocksController::class, 'index']);
+        Route::get('/fetch-branches/{id}',[StocksController::class, 'fetchBranchesByStoreId']);
+        Route::get('/fetch-branch-stock/{id}',[StocksController::class, 'fetchStockByBranchId']);
     });
 
 
