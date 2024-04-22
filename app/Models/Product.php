@@ -56,4 +56,8 @@ class Product extends Model
         }
         return $purchase - $delivered_qty;
     }
+
+    function purchases() {
+        return $this->hasMany(PurchaseDetail::class, 'product_id', 'id');
+    }
 }

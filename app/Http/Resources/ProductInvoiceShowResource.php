@@ -19,6 +19,7 @@ class ProductInvoiceShowResource extends JsonResource
             'id' => $this->id,
             'name' => $this->name,
             'image' => $this->image,
+            'available_qty'=> $this->availableQty(), 
             'sale_price' => $this->sale_price,
             'sku' => $this->sku,
             'code' => $this->code,

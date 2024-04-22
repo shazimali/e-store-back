@@ -15,10 +15,12 @@ use Illuminate\Http\Request;
 class StocksController extends Controller
 {
     function index(Request $request) {
+        $this->authorize('stock_access');
         return response()->json( StoreListResource::collection(Store::all())); 
     }
 
     function fetchBranchesByStoreId($id) {
+        $this->authorize('stock_access');
        $branches =  Branch::where('store_id',$id)->get();
        $deliverableIDs = Deliverable::where('store_id',$id)->pluck('id');
        $invoiceIDs = Invoice::where('store_id',$id)->pluck('id');
@@ -37,6 +39,7 @@ class StocksController extends Controller
     }
 
     function fetchStockByBranchId($id) {
+        $this->authorize('stock_access');
         $branches =  Branch::where('store_id',$id)->get();
         $deliverableIDs = Deliverable::where('branch_id',$id)->pluck('id');
         $invoiceIDs = Invoice::where('branch_id',$id)->pluck('id');

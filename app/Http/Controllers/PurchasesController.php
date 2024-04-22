@@ -7,6 +7,7 @@ use App\Http\Requests\StorePurchaseRequest;
 use App\Http\Resources\Products\ProductsListResource;
 use App\Http\Resources\PurchaseEditResource;
 use App\Http\Resources\PurchaseListResource;
+use App\Http\Resources\PurchaseShowPrintResource;
 use App\Models\Product;
 use App\Models\Purchase;
 use App\Models\PurchaseDetail;
@@ -88,5 +89,9 @@ class PurchasesController extends Controller
         }
 
         return  response()->json('Purchase updated successfully!');
+    }
+
+    function fetchForPrint($id){
+        return new PurchaseShowPrintResource(Purchase::findOrFail($id));
     }
 }

@@ -18,7 +18,7 @@ class StockListResource extends JsonResource
             'title' => $this->name,
             'in_stock' => $this->deliverables ? $this->deliverables->sum('qty'): 0,
             'out_stock' => $this->invoices ? $this->invoices->sum('qty'): 0,
-            'total' => $this->deliverables->sum('qty') + $this->invoices->sum('qty')
+            'total' => $this->deliverables->sum('qty') - $this->invoices->sum('qty')
         ];
     }
 }

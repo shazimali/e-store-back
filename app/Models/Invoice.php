@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -21,7 +22,7 @@ class Invoice extends Model
         'remarks',
         'is_ex_tax'
     ];
-
+    protected $appends = ['type','total'];
 
     public function store() {
         return $this->hasOne(Store::class,'id','store_id');
@@ -34,5 +35,13 @@ class Invoice extends Model
     public function details()
     {
         return $this->hasMany(InvoiceDetail::class, 'invoice_id', 'id');
+    }
+
+    public function  getTypeAttribute(){
+        return  'invoice';
+    }
+
+    public function  getTotalAttribute(){
+        return  '';
     }
 }

@@ -6,6 +6,7 @@ use App\Http\Controllers\BranchesController;
 use App\Http\Controllers\CompanyController;
 use App\Http\Controllers\DeliverablesController;
 use App\Http\Controllers\InvoicesController;
+use App\Http\Controllers\LedgersController;
 use App\Http\Controllers\UsersController;
 use App\Http\Controllers\RolesController;
 use App\Http\Controllers\ProductsController;
@@ -13,6 +14,7 @@ use App\Http\Controllers\PurchasesController;
 use App\Http\Controllers\ReturnDeliverablesController;
 use App\Http\Controllers\StocksController;
 use App\Http\Controllers\StoresController;
+use App\Http\Controllers\VouchersController;
 
 /*
 |--------------------------------------------------------------------------
@@ -85,6 +87,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::post('/store',[PurchasesController::class, 'store']);
         Route::get('/edit/{id}',[PurchasesController::class, 'edit']);
         Route::put('/update/{id}',[PurchasesController::class, 'update']);
+        Route::get('/fetch-for-print/{id}',[PurchasesController::class, 'fetchForPrint']);
     });
 
     //Deliverables
@@ -112,11 +115,13 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::prefix('/invoices')->group(function () {
         Route::get('/',[InvoicesController::class, 'index']);
         Route::get('/create',[InvoicesController::class, 'create']);
-        Route::get('/store-branches-products/{id}',[InvoicesController::class, 'fetchStoreBranchesProducts']);
+        Route::get('/fetch-store-branches/{id}',[InvoicesController::class, 'fetchStoreBranches']);
+        Route::get('/fetch-branch-products/{id}',[InvoicesController::class, 'fetchBranchProducts']);
         Route::post('/store',[InvoicesController::class, 'store']);
-        // Route::get('/edit/{id}',[ReturnDeliverablesController::class, 'edit']);
+        Route::get('/edit/{id}',[InvoicesController::class, 'edit']);
+        Route::get('/edit/fetch-branch-products/{branch_id}/{invoice_id}',[InvoicesController::class, 'fetchBranchProductsEdit']);
         Route::get('/fetch-invoice-for-print/{id}',[InvoicesController::class, 'fetchInvoiceById']);
-        // Route::put('/update/{id}',[ReturnDeliverablesController::class, 'update']);
+        Route::post('/update/{id}',[InvoicesController::class, 'update']);
     });
     //company
     Route::prefix('/company-detail')->group(function () {
@@ -129,7 +134,24 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::get('/fetch-branches/{id}',[StocksController::class, 'fetchBranchesByStoreId']);
         Route::get('/fetch-branch-stock/{id}',[StocksController::class, 'fetchStockByBranchId']);
     });
-
+    //vouchers
+    Route::prefix('/vouchers')->group(function () {
+        Route::get('/',[VouchersController::class, 'index']);
+        Route::post('/store',[VouchersController::class, 'store']);
+        Route::get('/fetch-stores',[VouchersController::class, 'fetchStores']);
+        Route::get('/fetch-store-branches/{id}',[VouchersController::class, 'fetchBranchesByStoreID']);
+        Route::get('/fetch-branch-balance/{id}',[VouchersController::class, 'fetchBalanceByBranchID']);
+        Route::get('/edit/{id}',[VouchersController::class, 'edit']);
+        Route::get('/fetch-voucher/{id}',[VouchersController::class, 'fetchVoucherByID']);
+        Route::put('/update/{id}',[VouchersController::class, 'update']);
+    });
+    //ledgers
+    Route::prefix('/ledgers')->group( function(){
+        Route::get('/',[LedgersController::class, 'index']);
+        Route::get('/profit-loss',[LedgersController::class, 'profitLoss']);
+        Route::get('/fetch-stores',[LedgersController::class, 'fetchStores']);
+        Route::get('/fetch-store-branches/{id}',[LedgersController::class, 'fetchBranchesByStoreID']);
+    });
 
 });
 

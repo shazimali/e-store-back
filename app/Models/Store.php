@@ -10,9 +10,10 @@ class Store extends Model
     use HasFactory;
 
     protected $fillable = [
-        'name',
+        'name', 
         'status',
         'ntn',
+        'sku_name',
         'discount',
         'is_sr',
         'sale_tax_number',
@@ -35,5 +36,15 @@ class Store extends Model
     public function branches()
     {
         return $this->hasMany(Branch::class, 'store_id', 'id');
+    }
+
+    public function invoices()
+    {
+        return $this->hasMany(Invoice::class, 'store_id', 'id');
+    }
+
+    public function vouchers()
+    {
+        return $this->hasMany(Voucher::class, 'store_id', 'id');
     }
 }
