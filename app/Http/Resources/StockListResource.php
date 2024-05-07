@@ -2,6 +2,8 @@
 
 namespace App\Http\Resources;
 
+use App\Models\Deliverable;
+use App\Models\DeliverableDetail;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class StockListResource extends JsonResource
@@ -16,9 +18,15 @@ class StockListResource extends JsonResource
     {
         return [
             'title' => $this->name,
-            'in_stock' => $this->deliverables ? $this->deliverables->sum('qty'): 0,
+            'in_stock' => $this->deliverables ? $this->inStockQty($this->deliverables) : 0,
             'out_stock' => $this->invoices ? $this->invoices->sum('qty'): 0,
-            'total' => $this->deliverables->sum('qty') - $this->invoices->sum('qty')
+            'total' => $this->inStockQty($this->deliverables) - $this->invoices->sum('qty')
         ];
+    }
+
+    function inStockQty($deliverables) {
+        $delIds =  Deliverable::NotReturn()->whereIn('id',$deliverables->pluck('deliverable_id'))->pluck('id');
+        $reDelIds =  Deliverable::Return()->whereIn('id',$deliverables->pluck('deliverable_id'))->pluck('id');
+        return DeliverableDetail::whereIn('deliverable_id',$delIds)->sum('qty') -  DeliverableDetail::whereIn('deliverable_id',$reDelIds)->sum('qty');
     }
 }

@@ -133,6 +133,17 @@ class InvoicesController extends Controller
                 }
             }
         }
+        //return delivered
+        $return_delivered = Deliverable::with('details')
+        ->where('is_return',1)->where('branch_id',$branch_id)->get();
+        $return_delivered_qty = 0;
+        foreach ($return_delivered as $key => $del) {
+            foreach ($del->details as $key => $detail) {
+                if($detail->product_id == $product_id){
+                    $return_delivered_qty =+  $detail->qty;
+                }
+            }
+        }
         //Invoiced
         $invoiced = Invoice::with('details')->where('branch_id',$branch_id)->get();
         $invoiced_qty = 0;
@@ -143,7 +154,7 @@ class InvoicesController extends Controller
                 }
             }
         }
-        return $delivered_qty - $invoiced_qty;
+        return ($delivered_qty - $return_delivered_qty) - $invoiced_qty;
     }
 
     function store(StoreInvoiceRequest $request) {

@@ -20,6 +20,7 @@ class ReturnDeliverableListResource extends JsonResource
             'return_type' => $this->return_type,
             'date' => $this->date,
             'store' => $this->store->name,
+            'branch' => $this->branch->name,
             'total_qty' => $this->total_qty,
             'created_at' => $this->created_at->toDateString(),
         ];

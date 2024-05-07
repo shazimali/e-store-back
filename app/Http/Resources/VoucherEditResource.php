@@ -19,6 +19,7 @@ class VoucherEditResource extends JsonResource
             'invoice_id' => $this->invoice_id,
             'branch_id' => $this->branch_id,
             'store_id' => $this->store_id,
+            'remarks' => $this->remarks,
             'amount' => $this->amount,
             'date' => $this->date
         ];

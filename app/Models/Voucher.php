@@ -14,6 +14,7 @@ class Voucher extends Model
         'branch_id',
         'invoice_id',
         'amount',
+        'remarks',
         'date',
         'created_at',
         'updated_at',

@@ -9,6 +9,7 @@ use App\Http\Resources\VoucherEditResource;
 use App\Http\Resources\VoucherListResource;
 use App\Http\Resources\VoucherShowResource;
 use App\Models\Branch;
+use App\Models\Discount;
 use App\Models\Invoice;
 use App\Models\InvoiceDetail;
 use App\Models\Store;
@@ -53,7 +54,9 @@ class VouchersController extends Controller
 
     function fetchBalanceByBranchID($branch_id) {
         $total = Invoice::where('branch_id',$branch_id)->sum('total_price');
-        $collected = Voucher::where('branch_id',$branch_id)->sum('amount');
+        $vouchers = Voucher::where('branch_id',$branch_id)->sum('amount');
+        $discounts = Discount::where('branch_id',$branch_id)->sum('amount');
+        $collected = $vouchers +  $discounts;
         return response()->json($total - $collected);
     }
 
@@ -72,6 +75,7 @@ class VouchersController extends Controller
                 'store_id' => $request->store_id,
                 'branch_id' => $request->branch_id,
                 'amount' => $request->amount,
+                'remarks' => $request->remarks,
             ]);
         return response()->json($voucher->id);
     }

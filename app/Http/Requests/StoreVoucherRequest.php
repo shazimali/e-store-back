@@ -27,6 +27,7 @@ class StoreVoucherRequest extends JsonFormRequest
             'store_id' => 'required',
             'branch_id' => 'required',
             'amount' => 'required',
+            'remarks' => 'required',
             'date' => 'required'
         ];
     }

@@ -24,13 +24,13 @@ class StocksController extends Controller
        $branches =  Branch::where('store_id',$id)->get();
        $deliverableIDs = Deliverable::where('store_id',$id)->pluck('id');
        $invoiceIDs = Invoice::where('store_id',$id)->pluck('id');
-       $products = Product::whereHas('deliverables', function($q) use($deliverableIDs,$invoiceIDs){
+       $products = Product::whereHas('deliverables',function($q) use($deliverableIDs){
             $q->whereIn('deliverable_id',$deliverableIDs);
         })
-        ->whereHas('invoices', function($q) use($invoiceIDs){
+        ->with(['invoices' => function($q) use($invoiceIDs){
             $q->whereIn('invoice_id',$invoiceIDs);
             }
-       )->get();
+       ])->get();
        return response()->json([
         'branches' => BranchListResource::collection($branches),
         'stocks' => StockListResource::collection($products)
@@ -46,7 +46,7 @@ class StocksController extends Controller
         $products = Product::whereHas('deliverables', function($q) use($deliverableIDs,$invoiceIDs){
              $q->whereIn('deliverable_id',$deliverableIDs);
          })
-         ->whereHas('invoices', function($q) use($invoiceIDs){
+         ->with('invoices', function($q) use($invoiceIDs){
              $q->whereIn('invoice_id',$invoiceIDs);
              }
         )->get();

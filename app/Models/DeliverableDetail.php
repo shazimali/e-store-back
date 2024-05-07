@@ -24,4 +24,8 @@ class DeliverableDetail extends Model
     public function deliverable() {
         return $this->belongsTo(Deliverable::class,'id','deliverable_id');
     }
+
+    public function deliverableParent() {
+        return $this->hasOne(Deliverable::class,'id','deliverable_id');
+    }
 }

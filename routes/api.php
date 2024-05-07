@@ -5,6 +5,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\BranchesController;
 use App\Http\Controllers\CompanyController;
 use App\Http\Controllers\DeliverablesController;
+use App\Http\Controllers\DiscountsController;
 use App\Http\Controllers\InvoicesController;
 use App\Http\Controllers\LedgersController;
 use App\Http\Controllers\UsersController;
@@ -144,6 +145,17 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::get('/edit/{id}',[VouchersController::class, 'edit']);
         Route::get('/fetch-voucher/{id}',[VouchersController::class, 'fetchVoucherByID']);
         Route::put('/update/{id}',[VouchersController::class, 'update']);
+    });
+     //discounts
+     Route::prefix('/discounts')->group(function () {
+        Route::get('/',[DiscountsController::class, 'index']);
+        Route::post('/store',[DiscountsController::class, 'store']);
+        Route::get('/fetch-stores',[DiscountsController::class, 'fetchStores']);
+        Route::get('/fetch-store-branches/{id}',[DiscountsController::class, 'fetchBranchesByStoreID']);
+        Route::get('/fetch-branch-balance-and-invoices/{id}',[DiscountsController::class, 'fetchBalanceAndInvoicesByBranchID']);
+        Route::get('/edit/{id}',[DiscountsController::class, 'edit']);
+        Route::get('/fetch-voucher/{id}',[DiscountsController::class, 'fetchVoucherByID']);
+        Route::put('/update/{id}',[DiscountsController::class, 'update']);
     });
     //ledgers
     Route::prefix('/ledgers')->group( function(){
