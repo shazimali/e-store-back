@@ -26,6 +26,7 @@ class InvoiceShowResource extends JsonResource
             'customer' => new StoreResource($this->branch) ,
             'company' => new CompanyResource(CompanyDetail::where('id',1)->first()),
             'products'=> InvoicePrintProductsResource::collection($this->details),
+            'return_products'=> InvoicePrintProductsResource::collection($this->return_details),
             'total_qty' => $this->total_qty,
             'total_price' => $this->total_price,
         ];

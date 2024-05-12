@@ -18,8 +18,10 @@ use App\Models\Deliverable;
 use App\Models\Invoice;
 use App\Models\InvoiceDetail;
 use App\Models\Product;
+use App\Models\ReturnInvoiceDetail;
 use App\Models\Store;
 use Illuminate\Http\Request;
+use PHPUnit\Framework\MockObject\Stub\ReturnReference;
 
 class InvoicesController extends Controller
 {
@@ -173,6 +175,19 @@ class InvoicesController extends Controller
                 'ext_tax' => $product['ext_tax'],
                 'date' => $request['date']
             ]);
+        }
+        if(count($request->return_products)){
+            foreach ($request->return_products as $key => $product) {
+                ReturnInvoiceDetail::create([
+                    'invoice_id' => $invoice->id,
+                    'product_id' => $product['id'],
+                    'qty' => $product['qty'],
+                    'price' => $product['price'],
+                    'sale_tax' => $product['sale_tax'],
+                    'ext_tax' => $product['ext_tax'],
+                    'date' => $request['date']
+                ]);
+            }
         }
         return  response()->json($invoice->id);
     }
