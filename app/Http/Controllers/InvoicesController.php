@@ -199,8 +199,9 @@ class InvoicesController extends Controller
 
     function edit($id) {
         $this->authorize('invoice_edit');
-            $invoice = Invoice::where('id',$id)->with('details')->first();
+            $invoice = Invoice::where('id',$id)->with('details','return_details')->first();
             $all_products = [];
+            $all_return_products = [];
             foreach ($invoice->details as $key => $detail) {
                 $product_block = [
                     'id' => $detail->product->id,
@@ -219,15 +220,37 @@ class InvoicesController extends Controller
                 ];
                 array_push($all_products,$product_block);
             }
+            if(count($invoice->return_details) > 0){
+                foreach ($invoice->return_details as $key => $return_detail) {
+                    $return_product_block = [
+                        'id' => $return_detail->product->id,
+                        'sku' => $return_detail->product->sku,           
+                        'code' => $return_detail->product->code, 
+                        'price' => $return_detail->price, 
+                        'qty' => $return_detail->qty, 
+                        'store' => $return_detail->product->store ? $return_detail->product->store->name : [],           
+                        'sale_price' => $return_detail->product->sale_price,     
+                        'available_qty'=> $this->availableQtyForInvoiceEdit($detail->product->id, $invoice->branch_id, $invoice->id),       
+                        'name' => $return_detail->product->name,           
+                        'status' => $return_detail->product->status,
+                        'ext_tax' => CompanyDetail::take(1)->first()->ext_tax,
+                        'sale_tax' => CompanyDetail::take(1)->first()->sale_tax,
+                        'created_at' => $return_detail->product->created_at->toDateString()
+                    ];
+                    array_push($all_return_products,$return_product_block);
+                }
+            }
             $data = [
                 'invoice_id' => $invoice->invoice_id,
                 'date' => $invoice->date,
+                'is_return' => count($invoice->return_details) > 0 ?  true : false,
                 'remarks' => $invoice->remarks,
                 'branch_id' => $invoice->branch_id,
                 'sr_number' => $invoice->sr_number,
                 'store_id' => $invoice->store_id,
                 'discount' => $invoice->discount,
                 'products'=> $all_products,
+                'return_products'=> $all_return_products,
                 'total_qty' => $invoice->total_qty,
                 'total_price' => $invoice->total_price,
             ];
@@ -267,7 +290,6 @@ class InvoicesController extends Controller
 
     function update(UpdateInvoiceRequest $request, $id) {
         $this->authorize('invoice_edit');
-
         $invoice = Invoice::where('id',$id)->first();
         $invoice->update([
                 "date" => $request->date,
@@ -281,6 +303,7 @@ class InvoicesController extends Controller
         ]);
 
         InvoiceDetail::where('invoice_id',$invoice->id)->delete();
+        ReturnInvoiceDetail::where('invoice_id',$invoice->id)->delete();
         
         foreach ($request->products as $key => $product) {
             InvoiceDetail::create([
@@ -292,6 +315,22 @@ class InvoicesController extends Controller
                 'ext_tax' => $product['ext_tax'],
                 'date' => $request['date']
             ]);
+        }
+
+        if(count($request->return_products) > 0){
+
+            foreach ($request->return_products as $key => $return_product) {
+                ReturnInvoiceDetail::create([
+                    'invoice_id' => $invoice->id,
+                    'product_id' => $return_product['id'],
+                    'qty' => $return_product['qty'],
+                    'price' => $return_product['price'],
+                    'sale_tax' => $return_product['sale_tax'],
+                    'ext_tax' => $return_product['ext_tax'],
+                    'date' => $request['date']
+                ]);
+            }
+            
         }
 
         return  response()->json($invoice->id);
