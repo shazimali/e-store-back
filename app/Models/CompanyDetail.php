@@ -14,6 +14,8 @@ class CompanyDetail extends Model
         'strn',
         'address',
         'del_px',
+        'del_adjust',
+        'inv_adjust',
         'sale_tax',
         'ext_tax',
         'phone',
