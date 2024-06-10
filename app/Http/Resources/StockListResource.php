@@ -25,8 +25,8 @@ class StockListResource extends JsonResource
     }
 
     function inStockQty($deliverables) {
-        $delIds =  Deliverable::NotReturn()->whereIn('id',$deliverables->pluck('deliverable_id'))->pluck('id');
-        $reDelIds =  Deliverable::Return()->whereIn('id',$deliverables->pluck('deliverable_id'))->pluck('id');
+        $delIds =  Deliverable::notReturn()->whereIn('id',$deliverables->pluck('deliverable_id'))->pluck('id');
+        $reDelIds =  Deliverable::return()->whereIn('id',$deliverables->pluck('deliverable_id'))->pluck('id');
         return DeliverableDetail::whereIn('deliverable_id',$delIds)->sum('qty') -  DeliverableDetail::whereIn('deliverable_id',$reDelIds)->sum('qty');
     }
 }

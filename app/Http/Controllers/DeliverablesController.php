@@ -15,6 +15,7 @@ use App\Models\CompanyDetail;
 use App\Models\Deliverable;
 use App\Models\DeliverableDetail;
 use App\Models\Product;
+use App\Models\PurchaseDetail;
 use App\Models\Store;
 use Illuminate\Http\Request;
 
@@ -22,10 +23,10 @@ class DeliverablesController extends Controller
 {
     function index(Request $request) {
         $this->authorize('deliverable_access');
-        $deliverables = Deliverable::NotReturn()->paginate($request->item_per_page);
+        $deliverables = Deliverable::notReturn()->paginate($request->item_per_page);
         
         if($request->search){
-            $deliverables = Deliverable::NotReturn()->where('store_id','LIKE',"%{$request->search}%")
+            $deliverables = Deliverable::notReturn()->where('store_id','LIKE',"%{$request->search}%")
             ->orWhere('total_qty','LIKE',"%{$request->search}%")
             ->orWhere('date','LIKE',"%{$request->search}%")
             ->paginate($request->item_per_page);
@@ -47,10 +48,52 @@ class DeliverablesController extends Controller
         ]); 
     }
 
+    function fetchStoreBranchesProductsEdit($store_id,$deliverable_id) {
+        $this->authorize('deliverable_edit');
+        $edit_products = [];
+        $store_products = Product::where('store_id',$store_id)->get();
+        foreach ($store_products as $key => $pr) {
+            $product_block = [
+                'id' => $pr->id,
+                'sku' => $pr->sku,           
+                'code' => $pr->code,           
+                'store' => $pr->store ? $pr->store->name : [],           
+                'sale_price' => $pr->sale_price,     
+                'available_qty'=> $this->availableQtyEdit($pr->id,$deliverable_id),       
+                'name' => $pr->name,           
+                'status' => $pr->status,
+                'created_at' => $pr->created_at->toDateString()
+            ];
+
+            array_push($edit_products, $product_block);
+        }
+        return response()->json([
+            'products' => $edit_products,
+            'branches' => BranchListResource::collection(Branch::where('store_id',$store_id)->get())
+        ]); 
+    }
+
+    function availableQtyEdit($product_id, $deliverable_id){
+        $purchase = PurchaseDetail::where('product_id',$product_id)->sum('qty');
+        $delivered = Deliverable::where('id','!=',$deliverable_id)
+                    ->where('is_return',0)
+                    ->with('details')
+                    ->get();
+        $delivered_qty = 0;
+        foreach ($delivered as $key => $del) {
+            foreach ($del->details as $key => $detail) {
+                if($detail->product_id == $product_id){
+                    $delivered_qty +=  $detail->qty;
+                }
+            }
+        }
+        return $purchase - $delivered_qty;
+    }
+
     function store(StoreDeliverableRequest $request) {
         $this->authorize('deliverable_save');
         $data = $request->all();
-        $data['invoice_id'] =  Deliverable::NotReturn()->NotCleared()->count() > 0 ?  Deliverable::NotReturn()->NotCleared()->latest('id')->first()->invoice_id+1 :1;
+        $data['invoice_id'] =  Deliverable::notReturn()->notCleared()->count() > 0 ?  Deliverable::notReturn()->notCleared()->orderBy('invoice_sr_number','DESC')->first()->invoice_id+1 :1;
         $data['invoice_prefix'] =  CompanyDetail::first()->del_px;
         $data['invoice_sr_number'] =  $data['invoice_prefix'].str_pad($data['invoice_id'],5,'0',STR_PAD_LEFT);
         $deliverable = Deliverable::create($data);
@@ -72,7 +115,7 @@ class DeliverablesController extends Controller
     }
 
     function edit($id) {
-        $this->authorize('purchase_edit');
+        $this->authorize('deliverable_edit');
         try {
             return new  DeliverableEditResource(Deliverable::where('id',$id)->with('details')->first());
         } catch (\Throwable $th) {

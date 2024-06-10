@@ -57,7 +57,7 @@ class InvoicesController extends Controller
         $this->authorize('invoice_create');
         $productIds = [];
             $deliverables = Deliverable::with('details')->where('branch_id',$branch_id)
-                            ->where('is_return',0)->get();
+                            ->notReturn()->get();
             foreach ($deliverables as $key => $deliverable) {
                 foreach ($deliverable->details as $key => $detail) {
                     array_push($productIds, $detail->product_id);
@@ -131,7 +131,7 @@ class InvoicesController extends Controller
         foreach ($delivered as $key => $del) {
             foreach ($del->details as $key => $detail) {
                 if($detail->product_id == $product_id){
-                    $delivered_qty =+  $detail->qty;
+                    $delivered_qty +=  $detail->qty;
                 }
             }
         }
@@ -142,7 +142,7 @@ class InvoicesController extends Controller
         foreach ($return_delivered as $key => $del) {
             foreach ($del->details as $key => $detail) {
                 if($detail->product_id == $product_id){
-                    $return_delivered_qty =+  $detail->qty;
+                    $return_delivered_qty +=  $detail->qty;
                 }
             }
         }
@@ -152,7 +152,7 @@ class InvoicesController extends Controller
         foreach ($invoiced as $key => $del) {
             foreach ($del->details as $key => $detail) {
                 if($detail->product_id == $product_id){
-                    $invoiced_qty =+  $detail->qty;
+                    $invoiced_qty +=  $detail->qty;
                 }
             }
         }

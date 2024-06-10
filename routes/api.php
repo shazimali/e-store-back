@@ -96,6 +96,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::get('/',[DeliverablesController::class, 'index']);
         Route::get('/create',[DeliverablesController::class, 'create']);
         Route::get('/store-branches-products/{id}',[DeliverablesController::class, 'fetchStoreBranchesProducts']);
+        Route::get('/store-branches-products-edit/{store_id}/{deliverable_id}',[DeliverablesController::class, 'fetchStoreBranchesProductsEdit']);
         Route::post('/store',[DeliverablesController::class, 'store']);
         Route::get('/edit/{id}',[DeliverablesController::class, 'edit']);
         Route::get('/fetch-deliverable-for-print/{id}',[DeliverablesController::class, 'fetchDeliverableById']);

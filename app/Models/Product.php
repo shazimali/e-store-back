@@ -43,14 +43,19 @@ class Product extends Model
         return $this->hasMany(InvoiceDetail::class, 'product_id', 'id');
     }
 
+    public function returnInvoices()
+    {
+        return $this->hasMany(ReturnInvoiceDetail::class, 'product_id', 'id');
+    }
+
     function availableQty() {
         $purchase = PurchaseDetail::where('product_id',$this->id)->sum('qty');
-        $delivered = Deliverable::with('details')->where('is_return',0)->get();
+        $delivered = Deliverable::notReturn()->with('details')->get();
         $delivered_qty = 0;
         foreach ($delivered as $key => $del) {
             foreach ($del->details as $key => $detail) {
                 if($detail->product_id == $this->id){
-                    $delivered_qty =+  $detail->qty;
+                    $delivered_qty +=  $detail->qty;
                 }
             }
         }

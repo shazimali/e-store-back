@@ -27,14 +27,14 @@ class Deliverable extends Model
         'updated_at'
     ];
 
-    public function scopeReturn() {
-        return $this->where('is_return', 1);
+    public function scopeReturn($query) {
+        return $query->where('is_return', 1);
     }
-    public function scopeNotReturn() {
-        return $this->where('is_return', 0);
+    public function scopeNotReturn($query) {
+        return $query->where('is_return', 0);
     }
-    public function scopeNotCleared() {
-        return $this->where('is_clear', 0);
+    public function scopeNotCleared($query) {
+        return $query->where('is_clear', 0);
     }
 
     public function store() {

@@ -24,10 +24,10 @@ class ReturnDeliverablesController extends Controller
     function index(Request $request) {
         $this->authorize('deliverable_access');
         
-        $deliverables = Deliverable::Return()->paginate($request->item_per_page);
+        $deliverables = Deliverable::return()->paginate($request->item_per_page);
         
         if($request->search){
-            $deliverables = Deliverable::Return()->where('store_id','LIKE',"%{$request->search}%")
+            $deliverables = Deliverable::return()->where('store_id','LIKE',"%{$request->search}%")
             ->orWhere('total_qty','LIKE',"%{$request->search}%")
             ->orWhere('date','LIKE',"%{$request->search}%")
             ->paginate($request->item_per_page);
@@ -50,7 +50,7 @@ class ReturnDeliverablesController extends Controller
         $this->authorize('deliverable_save');
         $data = $request->all();
         $data['is_return'] = 1;
-        $data['invoice_id'] =  Deliverable::Return()->count() > 0 ?  Deliverable::Return()->latest('id')->first()->invoice_id+1 :7000;
+        $data['invoice_id'] =  Deliverable::return()->count() > 0 ?  Deliverable::return()->orderBy('invoice_sr_number')->first()->invoice_id+1 :7000;
         $data['invoice_prefix'] =  CompanyDetail::first()->del_px;
         $data['invoice_sr_number'] =  $data['invoice_id'];
         $deliverable = Deliverable::create($data);

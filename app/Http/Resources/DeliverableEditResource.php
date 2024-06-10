@@ -23,7 +23,7 @@ class DeliverableEditResource extends JsonResource
             'sr_number' => $this->sr_number,
             'store_id' => $this->store_id,
             'order_date' => $this->order_date,
-            'products'=> PurchaseRelationProductsResource::collection($this->details),
+            'products'=> DeliverableEditProductResource::collection($this->details),
             'total_qty' => $this->total_qty,
         ];
     }

@@ -20,7 +20,7 @@ return new class extends Migration
             $table->integer('sale_tax');
             $table->integer('ext_tax');
             $table->integer('qty');
-            $table->integer('price');
+            $table->decimal('price',10,2);
             $table->date('date');
             $table->timestamps();
         });
