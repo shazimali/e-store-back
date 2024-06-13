@@ -6,8 +6,10 @@ use App\Http\Requests\SaveStoreRequest;
 use App\Http\Requests\UpdateStoreRequest;
 use App\Http\Resources\StoreListResource;
 use App\Models\City;
+use App\Models\Invoice;
 use App\Models\Store;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class StoresController extends Controller
 {
@@ -67,4 +69,22 @@ function update(UpdateStoreRequest $request, $id)   {
             return  response()->json(['error' => 'Error in saving store.'],422);
         }
     }
+function dashboardByStoreId($store_id){
+    $id = (int)$store_id;
+    try {
+         
+    return  response()->json([
+        'store_name' => Store::where('id',$id)->first()->name,
+        'yearly_sales' =>  DB::select("call yearly_sales($id)"),
+        'monthly_sales' => DB::select("call monthly_sales($id)"),
+        'yearly_deliverables' => DB::select("call yearly_deliverables($id)"),
+        'monthly_deliverables' => DB::select("call monthly_deliverables($id)"),
+    ]);
+    } catch (\Throwable $th) {
+        return  response()->json($th->getMessage());
+
+    }
+    
+
+}
 }

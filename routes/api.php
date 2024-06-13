@@ -60,6 +60,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::post('/save',[StoresController::class, 'save']);
         Route::get('/edit/{id}',[StoresController::class, 'edit']);
         Route::put('/update/{id}',[StoresController::class, 'update']);
+        Route::get('/dashboard/{id}',[StoresController::class, 'dashboardByStoreId']);
     });
 
     //Branches
