@@ -147,12 +147,19 @@ class InvoicesController extends Controller
             }
         }
         //Invoiced
-        $invoiced = Invoice::with('details')->where('branch_id',$branch_id)->get();
+        $invoiced = Invoice::with('details','return_details')->where('branch_id',$branch_id)->get();
         $invoiced_qty = 0;
         foreach ($invoiced as $key => $del) {
+            //sum invoice qty
             foreach ($del->details as $key => $detail) {
                 if($detail->product_id == $product_id){
                     $invoiced_qty +=  $detail->qty;
+                }
+            }
+            //subtract re-invoice qty
+            foreach ($del->return_details as $key => $detail) {
+                if($detail->product_id == $product_id){
+                    $invoiced_qty -=  $detail->qty;
                 }
             }
         }
@@ -273,15 +280,22 @@ class InvoicesController extends Controller
             }
         }
         //Invoiced
-        $invoiced = Invoice::with('details')
+        $invoiced = Invoice::with('details','return_details')
                     ->where('id','!=',$invoice_id)
                     ->where('branch_id',$branch_id)
                     ->get();
         $invoiced_qty = 0;
+        //sum invoice qty
         foreach ($invoiced as $key => $del) {
             foreach ($del->details as $key => $detail) {
                 if($detail->product_id == $product_id){
                     $invoiced_qty =+  $detail->qty;
+                }
+            }
+             //subtract re-invoice qty
+             foreach ($del->return_details as $key => $detail) {
+                if($detail->product_id == $product_id){
+                    $invoiced_qty -=  $detail->qty;
                 }
             }
         }

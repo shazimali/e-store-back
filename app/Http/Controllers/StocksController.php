@@ -64,6 +64,7 @@ class StocksController extends Controller
 
     function fetchStockByBranchId($id) {
         $this->authorize('stock_access');
+        $branch = Branch::with('store')->where('id',$id)->first();
         $deliverableIDs = Deliverable::where('branch_id',$id)->pluck('id');
         $invoiceIDs = Invoice::where('branch_id',$id)->pluck('id');
         $products = Product::whereHas('deliverables',function($q) use($deliverableIDs){
@@ -93,7 +94,10 @@ class StocksController extends Controller
             
             array_push($data,$product_data);
         }
-        return $data;
+         return response()->json([
+            'data'=>$data,
+            'branch'=>$branch
+        ],200); 
         // return response()->json( StockListResource::collection($products));
          
      }

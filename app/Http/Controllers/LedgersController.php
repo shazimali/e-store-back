@@ -16,12 +16,8 @@ use Illuminate\Support\Facades\DB;
 class LedgersController extends Controller
 {
     function index(Request $request) {
-    //    return  $data = Invoice::query()->select('id','total_price as amount','date','invoice_id')
-    //             ->union(Voucher::query()->select('id','amount','date','invoice_id'))
-    //             ->union(Discount::query()->select('id','amount','date','invoice_id'))
-    //             ->where('store_id',$request->store_id)
-    //             ->orderBy('date','ASC')
-    //             ->get();
+        $store_name = isset($request->store_id) &&  $request->store_id ? Store::where('id',$request->store_id)->first()->name : '';
+        $branch_name = isset($request->branch_id) && $request->branch_id ? Branch::where('id',$request->branch_id)->first()->name : '';
         $vouchers = Voucher::select('id','amount','date','invoice_id as data_id')
                     ->where('store_id',$request->store_id);
         $discounts = Discount::select('id','amount','date','id as data_id')
@@ -51,7 +47,11 @@ class LedgersController extends Controller
         $vouchers_data = $vouchers->get()->toArray();
         $discount_data = $discounts->get()->toArray();
         $data = array_merge($invoices_data, $vouchers_data, $discount_data);
-        return response()->json($data);
+        return response()->json([
+            'data' =>  $data,
+            'store_name' =>  $store_name,
+            'branch_name' =>  $branch_name
+        ]);
     }
 
     function fetchStores() {
