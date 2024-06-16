@@ -81,7 +81,7 @@ class LedgersController extends Controller
         }
         //fetch products details
        return Product::whereIn('id',$products_query->pluck('product_id'))
-                        ->with('invoices','purchases')
+                        ->with('invoices','purchases','returnInvoices')
                         ->paginate($request->item_per_page);
 
     }
