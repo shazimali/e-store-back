@@ -28,6 +28,10 @@ class Invoice extends Model
         return $this->hasOne(Store::class,'id','store_id');
     }
 
+    public function discount() {
+        return $this->hasOne(Discount::class,'invoice_id','invoice_id');
+    }
+
     public function branch() {
         return $this->hasOne(Branch::class,'id','branch_id');
     }

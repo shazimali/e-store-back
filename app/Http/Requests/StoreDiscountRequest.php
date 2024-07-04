@@ -25,7 +25,7 @@ class StoreDiscountRequest extends JsonFormRequest
     {
         return [
             'store_id' => 'required',
-            'invoice_id' => 'required',
+            'invoice_id' => 'required|unique:discounts,invoice_id',
             'branch_id' => 'required',
             'amount' => 'required',
             'remarks' => 'required',

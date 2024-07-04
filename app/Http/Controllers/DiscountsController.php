@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreDiscountRequest;
 use App\Http\Requests\StoreVoucherRequest;
+use App\Http\Requests\UpdateDiscountRequest;
 use App\Http\Resources\BranchListResource;
 use App\Http\Resources\DiscountEditResource;
 use App\Http\Resources\DiscountListResource;
@@ -36,7 +37,9 @@ class DiscountsController extends Controller
     function store(StoreDiscountRequest $request) {
         
         $this->authorize('deliverable_save');
+        $invoice_detail = Invoice::where('invoice_id',$request->invoice_id)->first();
         $data = $request->all();
+        $data['inv_id'] = $invoice_detail->id;
         // $data['invoice_id'] =  Discount::count() > 0 ?  Discount::latest('id')->first()->invoice_id+1 :6000;
         $discount= Discount::create($data);
         return response()->json( $discount->id);
@@ -65,10 +68,12 @@ class DiscountsController extends Controller
         return response()->json(new DiscountEditResource(Discount::find($id)));
     }
 
-    function update($id, StoreVoucherRequest $request) {
+    function update($id, UpdateDiscountRequest $request) {
             $discount = Discount::where('id',$id)->first();
+            $invoice_detail = Invoice::where('invoice_id',$request->invoice_id)->first();
             $discount->update([
                 'date' => $request->date,
+                'inv_id'=> $invoice_detail->id,
                 'store_id' => $request->store_id,
                 'invoice_id' => $request->invoice_id,
                 'branch_id' => $request->branch_id,

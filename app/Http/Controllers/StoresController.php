@@ -8,6 +8,7 @@ use App\Http\Resources\StoreListResource;
 use App\Models\Branch;
 use App\Models\City;
 use App\Models\Deliverable;
+use App\Models\Discount;
 use App\Models\Invoice;
 use App\Models\Store;
 use App\Models\Voucher;
@@ -79,23 +80,29 @@ function dashboardByStoreId($store_id){
          
     return  response()->json([
         'total_states' => [
-            'sales' => Invoice::where('store_id',$id)->sum('total_price'),
-            'deliverables' => Deliverable::where('store_id',$id)->sum('total_qty'),
-            'debit' => Voucher::where('store_id',$id)->sum('amount'),
+            'sales' => Invoice::where('store_id',$id)->sum('total_price') - Discount::where('store_id',$id)->sum('amount'),
+            'sales_invoices' => Invoice::where('store_id',$id)->count(),
+            'deliverables' => Deliverable::notReturn()->where('store_id',$id)->sum('total_qty'),
+            'return_deliverables' => Deliverable::return()->where('store_id',$id)->sum('total_qty'),
+            'debit' => Voucher::where('store_id',$id)->sum('amount') - Discount::where('store_id',$id)->sum('amount'),
             'credit' => Invoice::where('store_id',$id)->sum('total_price') - Voucher::where('store_id',$id)->sum('amount'),
             'branches' => Branch::where('store_id',$id)->count(),
         ],
         'yearly_states' => [
-            'sales' => Invoice::where('store_id',$id)->whereYear('date',Carbon::now())->sum('total_price'),
-            'deliverables' => Deliverable::where('store_id',$id)->whereYear('date',Carbon::now())->sum('total_qty'),
-            'debit' => Voucher::where('store_id',$id)->whereYear('date',Carbon::now())->sum('amount'),
+            'sales' => Invoice::where('store_id',$id)->whereYear('date',Carbon::now())->sum('total_price') - Discount::where('store_id',$id)->whereYear('date',Carbon::now())->sum('amount'),
+            'sales_invoices' => Invoice::where('store_id',$id)->whereYear('date',Carbon::now())->count(),
+            'deliverables' => Deliverable::notReturn()->where('store_id',$id)->whereYear('date',Carbon::now())->sum('total_qty'),
+            'return_deliverables' => Deliverable::return()->where('store_id',$id)->whereYear('date',Carbon::now())->sum('total_qty'),
+            'debit' => Voucher::where('store_id',$id)->whereYear('date',Carbon::now())->sum('amount') - Discount::where('store_id',$id)->whereYear('date',Carbon::now())->sum('amount'),
             'credit' => Invoice::where('store_id',$id)->whereYear('date',Carbon::now())->sum('total_price') - Voucher::where('store_id',$id)->whereYear('date',Carbon::now())->sum('amount'),
             'branches' => Branch::where('store_id',$id)->whereYear('created_at',Carbon::now())->count(),
         ],
         'monthly_states' => [
-            'sales' => Invoice::where('store_id',$id)->whereMonth('date',Carbon::now())->sum('total_price'),
-            'deliverables' => Deliverable::where('store_id',$id)->whereMonth('date',Carbon::now())->sum('total_qty'),
-            'debit' => Voucher::where('store_id',$id)->whereMonth('date',Carbon::now())->sum('amount'),
+            'sales' => Invoice::where('store_id',$id)->whereMonth('date',Carbon::now())->sum('total_price') - Discount::where('store_id',$id)->whereMonth('date',Carbon::now())->sum('amount'),
+            'sales_invoices' => Invoice::where('store_id',$id)->whereMonth('date',Carbon::now())->count(),
+            'deliverables' => Deliverable::notReturn()->where('store_id',$id)->whereMonth('date',Carbon::now())->sum('total_qty'),
+            'return_deliverables' => Deliverable::return()->where('store_id',$id)->whereMonth('date',Carbon::now())->sum('total_qty'),
+            'debit' => Voucher::where('store_id',$id)->whereMonth('date',Carbon::now())->sum('amount') - Discount::where('store_id',$id)->whereMonth('date',Carbon::now())->sum('amount'),
             'credit' => Invoice::where('store_id',$id)->whereMonth('date',Carbon::now())->sum('total_price') - Voucher::where('store_id',$id)->whereMonth('date',Carbon::now())->sum('amount'),
             'branches' => Branch::where('store_id',$id)->whereMonth('created_at',Carbon::now())->count(),
         ],

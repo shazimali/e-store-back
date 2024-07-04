@@ -27,15 +27,35 @@ class InvoicesController extends Controller
 {
     function index(Request $request) {
         $this->authorize('invoice_access');
-        $invoices = Invoice::paginate($request->item_per_page);
         
-        if($request->search){
-            $invoices = Invoice::where('store_id','LIKE',"%{$request->search}%")
-            ->orWhere('total_qty','LIKE',"%{$request->search}%")
-            ->orWhere('total_price','LIKE',"%{$request->search}%")
-            ->orWhere('date','LIKE',"%{$request->search}%")
-            ->paginate($request->item_per_page);
-        }
+        $search = $request->search;
+        $store_id = $request->store_id;
+        $branch_id = $request->branch_id;
+
+        $query = Invoice::query();
+        $query->when($search, function($q) use($search){
+           return $q->orWhere('total_qty','LIKE',"%{$search}%")
+                ->orWhere('total_price','LIKE',"%{$search}%")
+                ->orWhere('date','LIKE',"%{$search}%");
+        });
+
+        $query->when($store_id, function($q) use($store_id){
+            return  $q->where('store_id',$store_id);
+        });
+
+        $query->when($branch_id, function($q) use($branch_id){
+            return  $q->where('branch_id',$branch_id);
+        });
+
+        $invoices = $query->orderBy('invoice_id','DESC')->paginate($request->item_per_page);
+
+        // if($request->search){
+        //     $invoices = Invoice::where('store_id','LIKE',"%{$request->search}%")
+        //     ->orWhere('total_qty','LIKE',"%{$request->search}%")
+        //     ->orWhere('total_price','LIKE',"%{$request->search}%")
+        //     ->orWhere('date','LIKE',"%{$request->search}%")
+        //     ->paginate($request->item_per_page);
+        // }
 
         return InvoiceListResoruce::collection($invoices);
     }

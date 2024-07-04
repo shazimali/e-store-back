@@ -23,6 +23,10 @@ class InvoiceDetail extends Model
     public function product() {
         return $this->hasOne(Product::class,'id','product_id');
     }
+
+    public function discount() {
+        return $this->hasOne(Discount::class,'inv_id','invoice_id');
+    }
     public function invoice() {
         return $this->hasOne(Invoice::class,'id','invoice_id');
     }

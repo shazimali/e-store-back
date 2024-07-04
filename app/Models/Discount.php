@@ -13,6 +13,7 @@ class Discount extends Model
         'store_id',
         'branch_id',
         'invoice_id',
+        'inv_id',
         'amount',
         'remarks',
         'date',
