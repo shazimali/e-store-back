@@ -87,6 +87,8 @@ function dashboardByStoreId($store_id){
             'debit' => Voucher::where('store_id',$id)->sum('amount') - Discount::where('store_id',$id)->sum('amount'),
             'credit' => Invoice::where('store_id',$id)->sum('total_price') - Voucher::where('store_id',$id)->sum('amount'),
             'branches' => Branch::where('store_id',$id)->count(),
+            'invoiced_sale' => DB::select("call invoiced_sale($id)"),
+            'invoiced_purchase' => DB::select("call invoiced_purchase($id)"),
         ],
         'yearly_states' => [
             'sales' => Invoice::where('store_id',$id)->whereYear('date',Carbon::now())->sum('total_price') - Discount::where('store_id',$id)->whereYear('date',Carbon::now())->sum('amount'),
@@ -96,6 +98,8 @@ function dashboardByStoreId($store_id){
             'debit' => Voucher::where('store_id',$id)->whereYear('date',Carbon::now())->sum('amount') - Discount::where('store_id',$id)->whereYear('date',Carbon::now())->sum('amount'),
             'credit' => Invoice::where('store_id',$id)->whereYear('date',Carbon::now())->sum('total_price') - Voucher::where('store_id',$id)->whereYear('date',Carbon::now())->sum('amount'),
             'branches' => Branch::where('store_id',$id)->whereYear('created_at',Carbon::now())->count(),
+            'invoiced_sale' => DB::select("call invoiced_sale($id)"),
+            'invoiced_purchase' => DB::select("call invoiced_purchase($id)"),
         ],
         'monthly_states' => [
             'sales' => Invoice::where('store_id',$id)->whereMonth('date',Carbon::now())->sum('total_price') - Discount::where('store_id',$id)->whereMonth('date',Carbon::now())->sum('amount'),
@@ -105,6 +109,8 @@ function dashboardByStoreId($store_id){
             'debit' => Voucher::where('store_id',$id)->whereMonth('date',Carbon::now())->sum('amount') - Discount::where('store_id',$id)->whereMonth('date',Carbon::now())->sum('amount'),
             'credit' => Invoice::where('store_id',$id)->whereMonth('date',Carbon::now())->sum('total_price') - Voucher::where('store_id',$id)->whereMonth('date',Carbon::now())->sum('amount'),
             'branches' => Branch::where('store_id',$id)->whereMonth('created_at',Carbon::now())->count(),
+            'invoiced_sale' => DB::select("call invoiced_sale($id)"),
+            'invoiced_purchase' => DB::select("call invoiced_purchase($id)"),
         ],
         'store_name' => Store::where('id',$id)->first()->name,
         'yearly_sales' =>  DB::select("call yearly_sales($id)"),

@@ -12,7 +12,7 @@ services:
       - 8000:80
     depends_on:
       - mysql_db
-      - phpmyadmin
+      - app-phpmyadmin
     networks:
       - app
 
@@ -24,9 +24,9 @@ services:
       MYSQL_DATABASE: ${DB_DATABASE}
     networks:
       - app
-  phpmyadmin:
+  app-phpmyadmin:
     image: phpmyadmin:5.2
-    container_name: phpmyadmin
+    container_name: app-phpmyadmin
     ports:
       - 8001:80
     environment:
