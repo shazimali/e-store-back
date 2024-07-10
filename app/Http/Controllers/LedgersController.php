@@ -79,10 +79,17 @@ class LedgersController extends Controller
                 return $q->where('product_id',request('product_id'));
             });
         }
+        //fetch discounts details
+        $discount = Discount::whereIn('inv_id',$invoices_query->pluck('id'))->sum('amount');
+       
         //fetch products details
-       return Product::whereIn('id',$products_query->pluck('product_id'))
-                        ->with('invoices','invoices.discount','purchases','returnInvoices')
-                        ->paginate($request->item_per_page);
+       return [
+        'products' =>  Product::whereIn('id',$products_query->pluck('product_id'))
+        ->with('invoices','invoices.discount','purchases','returnInvoices')
+        // ->paginate($request->item_per_page);
+        ->get(),
+        'discount' => $discount
+       ];
 
     }
 }

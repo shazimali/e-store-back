@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\BranchesController;
 use App\Http\Controllers\CompanyController;
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DeliverablesController;
 use App\Http\Controllers\DiscountsController;
 use App\Http\Controllers\InvoicesController;
@@ -32,6 +33,9 @@ Route::post('/token',[AuthController::class, 'token'])->name('token');
 Route::post('/logout',[AuthController::class, 'logOut']);
 
 Route::middleware(['auth:sanctum'])->group(function () {
+    
+    //Dashboard
+    Route::get('/dashboard',[DashboardController::class, 'index']);
     
     //Users
     Route::prefix('/users')->group(function () {

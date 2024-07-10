@@ -26,7 +26,6 @@ class DiscountsController extends Controller
         
         if($request->search){
             $discounts = Discount::where('store_id','LIKE',"%{$request->search}%")
-            ->orWhere('total_qty','LIKE',"%{$request->search}%")
             ->orWhere('date','LIKE',"%{$request->search}%")
             ->paginate($request->item_per_page);
         }
