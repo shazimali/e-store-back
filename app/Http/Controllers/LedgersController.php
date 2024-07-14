@@ -66,12 +66,13 @@ class LedgersController extends Controller
         
         //fetch all related invoices 
         $invoices_query =  DB::table('invoices')->where('store_id',$request->store_id);
+        // return $invoices_query->pluck('id');
+        
         if(request('branch_id')){
             $invoices_query->when(request('branch_id'), function ($q) {
                 return $q->where('branch_id',request('branch_id'));
             });
         }        
-        
         //fetch invoiced products ID's
         $products_query  = DB::table('invoice_details')->whereIn('invoice_id',$invoices_query->pluck('id'));
         if(request('product_id')){
@@ -81,11 +82,14 @@ class LedgersController extends Controller
         }
         //fetch discounts details
         $discount = Discount::whereIn('inv_id',$invoices_query->pluck('id'))->sum('amount');
-       
+        $invoiceIDs = $invoices_query->pluck('id');
         //fetch products details
        return [
         'products' =>  Product::whereIn('id',$products_query->pluck('product_id'))
-        ->with('invoices','invoices.discount','purchases','returnInvoices')
+        // ->with('invoices','purchases','returnInvoices')
+        ->with(['invoices' => function($q) use($invoiceIDs) {
+                $q->whereIn('invoice_id',$invoiceIDs);
+        }])->with('purchases','returnInvoices')
         // ->paginate($request->item_per_page);
         ->get(),
         'discount' => $discount
