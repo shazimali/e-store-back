@@ -63,9 +63,16 @@ class LedgersController extends Controller
     }
 
     function profitLoss(Request $request)  {
-        
+        $form_date = $request->from_date;
+        $to_date = $request->to_date;
         //fetch all related invoices 
         $invoices_query =  DB::table('invoices')->where('store_id',$request->store_id);
+        if($form_date){
+          $invoices_query->whereDate('date','>=',$form_date);
+        }
+        if($to_date){
+            $invoices_query->whereDate('date','<=',$to_date);
+        }
         // return $invoices_query->pluck('id');
         
         if(request('branch_id')){
