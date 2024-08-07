@@ -83,6 +83,7 @@ function dashboardByStoreId($store_id){
         'total_states' => [
             'sales' => DB::select("call store_invoiced_sale($id)"),
             'purchases' => $this->invoicedPurchase($id),
+            'sale_without_tax' => $this->invoicedSales($id),
             'profit' => $this->invoicedSales($id) - $this->invoicedPurchase($id),
             'discounts' => Discount::where('store_id',$id)->sum('amount'),
             'sales_invoices' =>  Invoice::where('store_id',$id)->count(),
@@ -95,8 +96,9 @@ function dashboardByStoreId($store_id){
             'invoiced_purchase' => DB::select("call store_invoiced_purchase($id)"),
         ],
         'yearly_states' => [
-            'sales' => DB::select("call store_invoiced_sale($id)"),// Invoice::where('store_id',$id)->whereYear('date',Carbon::now())->sum('total_price') - Discount::where('store_id',$id)->whereYear('date',Carbon::now())->sum('amount'),
+            'sales' => DB::select("call store_yearly_invoiced_sale($id)"),// Invoice::where('store_id',$id)->whereYear('date',Carbon::now())->sum('total_price') - Discount::where('store_id',$id)->whereYear('date',Carbon::now())->sum('amount'),
             'purchases' => $this->currentYearInvoicedPurchase($id),
+            'sale_without_tax' => $this->currentYearInvoicedSales($id),
             'profit' => $this->currentYearInvoicedSales($id) - $this->currentYearInvoicedPurchase($id),
             'discounts' => Discount::where('store_id',$id)->whereYear('date',Carbon::now())->sum('amount'),
             'sales_invoices' => Invoice::where('store_id',$id)->whereYear('date',Carbon::now())->count(),
@@ -109,8 +111,9 @@ function dashboardByStoreId($store_id){
             'invoiced_purchase' => DB::select("call store_invoiced_purchase($id)"),
         ],
         'monthly_states' => [
-            'sales' =>DB::select("call store_invoiced_sale($id)"),// Invoice::where('store_id',$id)->whereMonth('date',Carbon::now())->sum('total_price') - Discount::where('store_id',$id)->whereMonth('date',Carbon::now())->sum('amount'),
+            'sales' =>DB::select("call store_monthly_invoiced_sale($id)"),// Invoice::where('store_id',$id)->whereMonth('date',Carbon::now())->sum('total_price') - Discount::where('store_id',$id)->whereMonth('date',Carbon::now())->sum('amount'),
             'purchases' => $this->currentMonthInvoicedPurchase($id),
+            'sale_without_tax' => $this->currentMonthInvoicedSales($id),
             'profit' => $this->currentMonthInvoicedSales($id) - $this->currentMonthInvoicedPurchase($id),
             'discounts' => Discount::where('store_id',$id)->whereMonth('date',Carbon::now())->sum('amount'),
             'sales_invoices' => Invoice::where('store_id',$id)->whereMonth('date',Carbon::now())->count(),

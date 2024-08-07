@@ -24,7 +24,6 @@ class VouchersController extends Controller
         $this->authorize('deliverable_save');
 
         $vouchers = Voucher::paginate($request->item_per_page);
-        
         if($request->search){
             $vouchers = Voucher::where('store_id','LIKE',"%{$request->search}%")
             ->orWhere('total_qty','LIKE',"%{$request->search}%")

@@ -96,7 +96,11 @@ class LedgersController extends Controller
         // ->with('invoices','purchases','returnInvoices')
         ->with(['invoices' => function($q) use($invoiceIDs) {
                 $q->whereIn('invoice_id',$invoiceIDs);
-        }])->with('purchases','returnInvoices')
+        }])
+        ->with(['returnInvoices' => function($q) use($invoiceIDs) {
+            $q->whereIn('invoice_id',$invoiceIDs);
+        }])
+        ->with('purchases')
         // ->paginate($request->item_per_page);
         ->get(),
         'discount' => $discount

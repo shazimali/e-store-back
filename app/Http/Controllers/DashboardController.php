@@ -22,13 +22,15 @@ class DashboardController extends Controller
                 'total_states' => [
                     'discounts' => DB::select('call invoiced_discounts'),
                     'sales' => DB::select("call invoiced_sale"),
+                    'sale_without_tax' => $this->invoicedSales(),
                     'purchases' => $this->invoicedPurchase(), //DB::select("call invoiced_purchase"),
                     'profit' => $this->invoicedSales() -  $this->invoicedPurchase(),
                     'branches' => Branch::count(),
                     'stores' => Store::count()
                 ],
                 'yearly_states' => [
-                    'sales' => DB::select('call current_year_invoiced_sales'), 
+                    'sales' => DB::select('call current_year_invoiced_sales'),
+                    'sale_without_tax' => $this->currentYearInvoicedSales(),
                     'purchases' => $this->currentYearInvoicedPurchase(), // DB::select('call current_year_invoiced_purchases'),
                     'profit' => $this->currentYearInvoicedSales() -  $this->currentYearInvoicedPurchase(),
                     'discounts' => DB::select('call current_year_invoiced_discounts'),
@@ -37,6 +39,7 @@ class DashboardController extends Controller
                 ],
                 'monthly_states' => [
                     'sales' =>  DB::select('call current_month_invoiced_sales'), 
+                    'sale_without_tax' => $this->currentMonthInvoicedSales(),
                     'purchases' => $this->currentMonthInvoicedPurchase(), //DB::select('call current_month_invoiced_purchases'),
                     'profit' => $this->currentMonthInvoicedSales() -  $this->currentMonthInvoicedPurchase(),
                     'discounts' => DB::select('call current_month_invoiced_discounts'),
