@@ -3,6 +3,7 @@
 namespace App\Http\Resources;
 
 use App\Models\CompanyDetail;
+use Carbon\Carbon;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class InvoiceShowResource extends JsonResource
@@ -16,7 +17,7 @@ class InvoiceShowResource extends JsonResource
     public function toArray($request)
     {
         return [
-            'date' => $this->date,
+            'date' => Carbon::parse($this->date)->format('d M Y'),
             'remarks' => $this->remarks,
             'sr_number' => $this->sr_number,
             'invoice_id' => $this->invoice_id,
