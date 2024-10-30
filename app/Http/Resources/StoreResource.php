@@ -28,7 +28,7 @@ class StoreResource extends JsonResource
             'phone' => $this->phone,
             'email' => $this->email,
             'created_at' => $this->created_at->toDateString(),
-            'city' => $this->city->name
+            'city' => $this->city->title
         ];
     }
 }
