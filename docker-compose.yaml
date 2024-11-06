@@ -11,22 +11,22 @@ services:
     ports:
       - 8000:80
     depends_on:
-      - mysql_db
-      - app-phpmyadmin
+      - mysql
+      - phpmyadmin
     networks:
       - app
 
-  mysql_db:
+  mysql:
     image: mysql:8.3
-    container_name: mysql_db
+    container_name: mysql
     environment:
       MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
       MYSQL_DATABASE: ${DB_DATABASE}
     networks:
       - app
-  app-phpmyadmin:
+  phpmyadmin:
     image: phpmyadmin:5.2
-    container_name: app-phpmyadmin
+    container_name: phpmyadmin
     ports:
       - 8001:80
     environment:
