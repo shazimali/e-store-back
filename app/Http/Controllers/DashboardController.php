@@ -15,9 +15,10 @@ use Illuminate\Support\Facades\DB;
 
 class DashboardController extends Controller
 {
-    public function index(){
+    public function index()
+    {
         try {
-         
+
             return  response()->json([
                 'total_states' => [
                     'discounts' => DB::select('call invoiced_discounts'),
@@ -38,7 +39,7 @@ class DashboardController extends Controller
                     'stores' => Store::count(),
                 ],
                 'monthly_states' => [
-                    'sales' =>  DB::select('call current_month_invoiced_sales'), 
+                    'sales' =>  DB::select('call current_month_invoiced_sales'),
                     'sale_without_tax' => $this->currentMonthInvoicedSales(),
                     'purchases' => $this->currentMonthInvoicedPurchase(), //DB::select('call current_month_invoiced_purchases'),
                     'profit' => $this->currentMonthInvoicedSales() -  $this->currentMonthInvoicedPurchase(),
@@ -47,7 +48,7 @@ class DashboardController extends Controller
                     'stores' => Store::count(),
                 ],
                 'last_month_states' => [
-                    'sales' =>  DB::select('call last_month_invoiced_sales'), 
+                    'sales' =>  DB::select('call last_month_invoiced_sales'),
                     'sale_without_tax' => $this->lastMonthInvoicedSales(),
                     'purchases' => $this->lastMonthInvoicedPurchase(), //DB::select('call current_month_invoiced_purchases'),
                     'profit' => $this->lastMonthInvoicedSales() -  $this->lastMonthInvoicedPurchase(),
@@ -59,290 +60,308 @@ class DashboardController extends Controller
                 'monthly_sales' => DB::select("call monthly_sales"),
                 'stores' => DB::select("call stores"),
                 'top_store' => DB::select('call heigh_sale_store'),
-                'current_last_month_stores_sale' => DB::select('call current_last_month_stores_sale'),
+                'current_last_month_stores_sale' => 1234, // DB::select('call current_last_month_stores_sale'),
                 'top_last_month_store' => DB::select('call hiegh_sale_last_month_store')
             ]);
-            } catch (\Throwable $th) {
-                return  response()->json($th->getMessage());
-        
-            }
+        } catch (\Throwable $th) {
+            return  response()->json($th->getMessage());
+        }
     }
 
-    public function invoicedPurchase()  {
-         //fetch all related invoices 
-         $invoices_query =  DB::table('invoices')->get();
-               
-         //fetch invoiced products ID's
-         $products_query  = DB::table('invoice_details')->whereIn('invoice_id',$invoices_query->pluck('id'));
-         if(request('product_id')){
-             $products_query->when(request('product_id'), function ($q) {
-                 return $q->where('product_id',request('product_id'));
-             });
-         }
-         //fetch discounts details
-         $invoiceIDs = $invoices_query->pluck('id');
-         //fetch products details
-
-         $products = Product::whereIn('id',$products_query->pluck('product_id'))
-         ->with(['invoices' => function($q) use($invoiceIDs) {
-                 $q->whereIn('invoice_id',$invoiceIDs);
-         }])->with('purchases','returnInvoices')
-         ->get();
-
-         $purchases = 0;
-         foreach ($products as $key => $pr_item) {
-           $mean_price = $pr_item->purchases->sum('price')/$pr_item->purchases->count();
-           $purchases += $pr_item->invoices->sum('qty') * $mean_price;  
-           if($pr_item->returnInvoices->count()){
-            $purchases -= $pr_item->returnInvoices->sum('qty') * $mean_price;      
-           }    
-         }
-
-         return $purchases;
-    }
-
-    public function currentYearInvoicedPurchase()  {
-        //fetch all related invoices 
-        $invoices_query =  DB::table('invoices')->whereYear('date',Carbon::now()->year)->get();
-              
-        //fetch invoiced products ID's
-        $products_query  = DB::table('invoice_details')->whereIn('invoice_id',$invoices_query->pluck('id'));
-        if(request('product_id')){
-            $products_query->when(request('product_id'), function ($q) {
-                return $q->where('product_id',request('product_id'));
-            });
-        }
-        //fetch discounts details
-        $invoiceIDs = $invoices_query->pluck('id');
-        //fetch products details
-
-        $products = Product::whereIn('id',$products_query->pluck('product_id'))
-        ->with(['invoices' => function($q) use($invoiceIDs) {
-                $q->whereIn('invoice_id',$invoiceIDs);
-        }])->with(['returnInvoices' => function($q) {
-                $q->whereYear('date',Carbon::now()->year);
-        }])->with('purchases')
-        ->get();
-
-        $purchases = 0;
-        foreach ($products as $key => $pr_item) {
-          $mean_price = $pr_item->purchases->sum('price')/$pr_item->purchases->count();
-          $purchases += $pr_item->invoices->sum('qty') * $mean_price;  
-          if($pr_item->returnInvoices->count()){
-           $purchases -= $pr_item->returnInvoices->sum('qty') * $mean_price;      
-          }    
-        }
-
-        return $purchases;
-    }
-
-    public function currentMonthInvoicedPurchase()  {
-        //fetch all related invoices 
-        $invoices_query =  DB::table('invoices')->whereMonth('date',Carbon::now()->month)->get();
-              
-        //fetch invoiced products ID's
-        $products_query  = DB::table('invoice_details')->whereIn('invoice_id',$invoices_query->pluck('id'));
-        if(request('product_id')){
-            $products_query->when(request('product_id'), function ($q) {
-                return $q->where('product_id',request('product_id'));
-            });
-        }
-        //fetch discounts details
-        $invoiceIDs = $invoices_query->pluck('id');
-        //fetch products details
-
-        $products = Product::whereIn('id',$products_query->pluck('product_id'))
-        ->with(['invoices' => function($q) use($invoiceIDs) {
-                $q->whereIn('invoice_id',$invoiceIDs);
-        }])->with(['returnInvoices' => function($q) {
-                $q->whereMonth('date',Carbon::now()->month);
-        }])->with('purchases')
-        ->get();
-
-        $purchases = 0;
-        foreach ($products as $key => $pr_item) {
-          $mean_price = $pr_item->purchases->sum('price')/$pr_item->purchases->count();
-          $purchases += $pr_item->invoices->sum('qty') * $mean_price;  
-          if($pr_item->returnInvoices->count()){
-           $purchases -= $pr_item->returnInvoices->sum('qty') * $mean_price;      
-          }    
-        }
-
-        return $purchases;
-    }
-
-    public function lastMonthInvoicedPurchase()  {
-        //fetch all related invoices 
-        $invoices_query =  DB::table('invoices')->whereMonth('date',Carbon::now()->subMonth()->month)->get();
-              
-        //fetch invoiced products ID's
-        $products_query  = DB::table('invoice_details')->whereIn('invoice_id',$invoices_query->pluck('id'));
-        if(request('product_id')){
-            $products_query->when(request('product_id'), function ($q) {
-                return $q->where('product_id',request('product_id'));
-            });
-        }
-        //fetch discounts details
-        $invoiceIDs = $invoices_query->pluck('id');
-        //fetch products details
-
-        $products = Product::whereIn('id',$products_query->pluck('product_id'))
-        ->with(['invoices' => function($q) use($invoiceIDs) {
-                $q->whereIn('invoice_id',$invoiceIDs);
-        }])->with(['returnInvoices' => function($q) {
-                $q->whereMonth('date',Carbon::now()->subMonth()->month);
-        }])->with('purchases')
-        ->get();
-
-        $purchases = 0;
-        foreach ($products as $key => $pr_item) {
-          $mean_price = $pr_item->purchases->sum('price')/$pr_item->purchases->count();
-          $purchases += $pr_item->invoices->sum('qty') * $mean_price;  
-          if($pr_item->returnInvoices->count()){
-           $purchases -= $pr_item->returnInvoices->sum('qty') * $mean_price;      
-          }    
-        }
-
-        return $purchases;
-    }
-
-
-    public function invoicedSales()  {
+    public function invoicedPurchase()
+    {
         //fetch all related invoices 
         $invoices_query =  DB::table('invoices')->get();
-              
+
         //fetch invoiced products ID's
-        $products_query  = DB::table('invoice_details')->whereIn('invoice_id',$invoices_query->pluck('id'));
-        if(request('product_id')){
+        $products_query  = DB::table('invoice_details')->whereIn('invoice_id', $invoices_query->pluck('id'));
+        if (request('product_id')) {
             $products_query->when(request('product_id'), function ($q) {
-                return $q->where('product_id',request('product_id'));
+                return $q->where('product_id', request('product_id'));
             });
         }
         //fetch discounts details
         $invoiceIDs = $invoices_query->pluck('id');
         //fetch products details
 
-        $products = Product::whereIn('id',$products_query->pluck('product_id'))
-        ->with(['invoices' => function($q) use($invoiceIDs) {
-                $q->whereIn('invoice_id',$invoiceIDs);
-        }])->with('purchases','returnInvoices')
-        ->get();
+        $products = Product::whereIn('id', $products_query->pluck('product_id'))
+            ->with(['invoices' => function ($q) use ($invoiceIDs) {
+                $q->whereIn('invoice_id', $invoiceIDs);
+            }])->with('purchases', 'returnInvoices')
+            ->get();
 
-        $sales = 0;
+        $purchases = 0;
         foreach ($products as $key => $pr_item) {
-          $mean_price = $pr_item->invoices->sum('price')/$pr_item->invoices->count();
-          $sales += $pr_item->invoices->sum('qty') * $mean_price;  
-          if($pr_item->returnInvoices->count()){
-           $sales -= $pr_item->returnInvoices->sum('qty') * $mean_price;      
-          }    
+            $mean_price = $pr_item->purchases->sum('price') / $pr_item->purchases->count();
+            $purchases += $pr_item->invoices->sum('qty') * $mean_price;
+            if ($pr_item->returnInvoices->count()) {
+                $purchases -= $pr_item->returnInvoices->sum('qty') * $mean_price;
+            }
         }
 
-        return $sales;
+        return $purchases;
     }
 
-    public function currentYearInvoicedSales()  {
+    public function currentYearInvoicedPurchase()
+    {
         //fetch all related invoices 
-        $invoices_query =  DB::table('invoices')->whereYear('date',Carbon::now()->year)->get();
-              
+        $invoices_query =  DB::table('invoices')->whereYear('date', Carbon::now()->year)->get();
+
         //fetch invoiced products ID's
-        $products_query  = DB::table('invoice_details')->whereIn('invoice_id',$invoices_query->pluck('id'));
-        if(request('product_id')){
+        $products_query  = DB::table('invoice_details')->whereIn('invoice_id', $invoices_query->pluck('id'));
+        if (request('product_id')) {
             $products_query->when(request('product_id'), function ($q) {
-                return $q->where('product_id',request('product_id'));
+                return $q->where('product_id', request('product_id'));
             });
         }
         //fetch discounts details
         $invoiceIDs = $invoices_query->pluck('id');
         //fetch products details
 
-        $products = Product::whereIn('id',$products_query->pluck('product_id'))
-        ->with(['invoices' => function($q) use($invoiceIDs) {
-                $q->whereIn('invoice_id',$invoiceIDs);
-        }])->with(['returnInvoices' => function($q) {
-                $q->whereYear('date',Carbon::now()->year);
-        }])->with('purchases')
-        ->get();
+        $products = Product::whereIn('id', $products_query->pluck('product_id'))
+            ->with(['invoices' => function ($q) use ($invoiceIDs) {
+                $q->whereIn('invoice_id', $invoiceIDs);
+            }])->with(['returnInvoices' => function ($q) {
+                $q->whereYear('date', Carbon::now()->year);
+            }])->with('purchases')
+            ->get();
 
-        $sales = 0;
+        $purchases = 0;
         foreach ($products as $key => $pr_item) {
-          $mean_price = $pr_item->invoices->sum('price')/$pr_item->invoices->count();
-          $sales += $pr_item->invoices->sum('qty') * $mean_price;  
-          if($pr_item->returnInvoices->count()){
-           $sales -= $pr_item->returnInvoices->sum('qty') * $mean_price;      
-          }    
+            $mean_price = $pr_item->purchases->sum('price') / $pr_item->purchases->count();
+            $purchases += $pr_item->invoices->sum('qty') * $mean_price;
+            if ($pr_item->returnInvoices->count()) {
+                $purchases -= $pr_item->returnInvoices->sum('qty') * $mean_price;
+            }
         }
 
-        return $sales;
+        return $purchases;
     }
 
-    public function currentMonthInvoicedSales()  {
+    public function currentMonthInvoicedPurchase()
+    {
         //fetch all related invoices 
-        $invoices_query =  DB::table('invoices')->whereMonth('date',Carbon::now()->month)->get();
-              
+        $invoices_query =  DB::table('invoices')
+            ->whereMonth('date', Carbon::now()->month)
+            ->whereYear('date', Carbon::now()->year)
+            ->get();
+
         //fetch invoiced products ID's
-        $products_query  = DB::table('invoice_details')->whereIn('invoice_id',$invoices_query->pluck('id'));
-        if(request('product_id')){
+        $products_query  = DB::table('invoice_details')->whereIn('invoice_id', $invoices_query->pluck('id'));
+        if (request('product_id')) {
             $products_query->when(request('product_id'), function ($q) {
-                return $q->where('product_id',request('product_id'));
+                return $q->where('product_id', request('product_id'));
             });
         }
         //fetch discounts details
         $invoiceIDs = $invoices_query->pluck('id');
         //fetch products details
 
-        $products = Product::whereIn('id',$products_query->pluck('product_id'))
-        ->with(['invoices' => function($q) use($invoiceIDs) {
-                $q->whereIn('invoice_id',$invoiceIDs);
-        }])->with(['returnInvoices' => function($q) {
-                $q->whereMonth('date',Carbon::now()->month);
-        }])->with('purchases')
-        ->get();
+        $products = Product::whereIn('id', $products_query->pluck('product_id'))
+            ->with(['invoices' => function ($q) use ($invoiceIDs) {
+                $q->whereIn('invoice_id', $invoiceIDs);
+            }])->with(['returnInvoices' => function ($q) {
+                $q->whereMonth('date', Carbon::now()->month);
+            }])->with('purchases')
+            ->get();
 
-        $sales = 0;
+        $purchases = 0;
         foreach ($products as $key => $pr_item) {
-          $mean_price = $pr_item->invoices->sum('price')/$pr_item->invoices->count();
-          $sales += $pr_item->invoices->sum('qty') * $mean_price;  
-          if($pr_item->returnInvoices->count()){
-           $sales -= $pr_item->returnInvoices->sum('qty') * $mean_price;      
-          }    
+            $mean_price = $pr_item->purchases->sum('price') / $pr_item->purchases->count();
+            $purchases += $pr_item->invoices->sum('qty') * $mean_price;
+            if ($pr_item->returnInvoices->count()) {
+                $purchases -= $pr_item->returnInvoices->sum('qty') * $mean_price;
+            }
         }
 
-        return $sales;
+        return $purchases;
     }
 
-    public function lastMonthInvoicedSales()  {
+    public function lastMonthInvoicedPurchase()
+    {
         //fetch all related invoices 
-        $invoices_query =  DB::table('invoices')->whereMonth('date',Carbon::now()->subMonth()->month)->get();
-              
+        $invoices_query =  DB::table('invoices')
+        ->whereYear('created_at', Carbon::now()->subMonth()->year)
+        ->whereMonth('created_at', Carbon::now()->subMonth()->month)
+        ->get();
+
         //fetch invoiced products ID's
-        $products_query  = DB::table('invoice_details')->whereIn('invoice_id',$invoices_query->pluck('id'));
-        if(request('product_id')){
+        $products_query  = DB::table('invoice_details')->whereIn('invoice_id', $invoices_query->pluck('id'));
+        if (request('product_id')) {
             $products_query->when(request('product_id'), function ($q) {
-                return $q->where('product_id',request('product_id'));
+                return $q->where('product_id', request('product_id'));
             });
         }
         //fetch discounts details
         $invoiceIDs = $invoices_query->pluck('id');
         //fetch products details
 
-        $products = Product::whereIn('id',$products_query->pluck('product_id'))
-        ->with(['invoices' => function($q) use($invoiceIDs) {
-                $q->whereIn('invoice_id',$invoiceIDs);
-        }])->with(['returnInvoices' => function($q) {
-                $q->whereMonth('date',Carbon::now()->subMonth()->month);
-        }])->with('purchases')
-        ->get();
+        $products = Product::whereIn('id', $products_query->pluck('product_id'))
+            ->with(['invoices' => function ($q) use ($invoiceIDs) {
+                $q->whereIn('invoice_id', $invoiceIDs);
+            }])->with(['returnInvoices' => function ($q) {
+                $q->whereMonth('date', Carbon::now()->subMonth()->month);
+            }])->with('purchases')
+            ->get();
+
+        $purchases = 0;
+        foreach ($products as $key => $pr_item) {
+            $mean_price = $pr_item->purchases->sum('price') / $pr_item->purchases->count();
+            $purchases += $pr_item->invoices->sum('qty') * $mean_price;
+            if ($pr_item->returnInvoices->count()) {
+                $purchases -= $pr_item->returnInvoices->sum('qty') * $mean_price;
+            }
+        }
+
+        return $purchases;
+    }
+
+
+    public function invoicedSales()
+    {
+        //fetch all related invoices 
+        $invoices_query =  DB::table('invoices')->get();
+
+        //fetch invoiced products ID's
+        $products_query  = DB::table('invoice_details')->whereIn('invoice_id', $invoices_query->pluck('id'));
+        if (request('product_id')) {
+            $products_query->when(request('product_id'), function ($q) {
+                return $q->where('product_id', request('product_id'));
+            });
+        }
+        //fetch discounts details
+        $invoiceIDs = $invoices_query->pluck('id');
+        //fetch products details
+
+        $products = Product::whereIn('id', $products_query->pluck('product_id'))
+            ->with(['invoices' => function ($q) use ($invoiceIDs) {
+                $q->whereIn('invoice_id', $invoiceIDs);
+            }])->with('purchases', 'returnInvoices')
+            ->get();
 
         $sales = 0;
         foreach ($products as $key => $pr_item) {
-          $mean_price = $pr_item->invoices->sum('price')/$pr_item->invoices->count();
-          $sales += $pr_item->invoices->sum('qty') * $mean_price;  
-          if($pr_item->returnInvoices->count()){
-           $sales -= $pr_item->returnInvoices->sum('qty') * $mean_price;      
-          }    
+            $mean_price = $pr_item->invoices->sum('price') / $pr_item->invoices->count();
+            $sales += $pr_item->invoices->sum('qty') * $mean_price;
+            if ($pr_item->returnInvoices->count()) {
+                $sales -= $pr_item->returnInvoices->sum('qty') * $mean_price;
+            }
         }
 
         return $sales;
     }
-    
+
+    public function currentYearInvoicedSales()
+    {
+        //fetch all related invoices 
+        $invoices_query =  DB::table('invoices')->whereYear('date', Carbon::now()->year)->get();
+
+        //fetch invoiced products ID's
+        $products_query  = DB::table('invoice_details')->whereIn('invoice_id', $invoices_query->pluck('id'));
+        if (request('product_id')) {
+            $products_query->when(request('product_id'), function ($q) {
+                return $q->where('product_id', request('product_id'));
+            });
+        }
+        //fetch discounts details
+        $invoiceIDs = $invoices_query->pluck('id');
+        //fetch products details
+
+        $products = Product::whereIn('id', $products_query->pluck('product_id'))
+            ->with(['invoices' => function ($q) use ($invoiceIDs) {
+                $q->whereIn('invoice_id', $invoiceIDs);
+            }])->with(['returnInvoices' => function ($q) {
+                $q->whereYear('date', Carbon::now()->year);
+            }])->with('purchases')
+            ->get();
+
+        $sales = 0;
+        foreach ($products as $key => $pr_item) {
+            $mean_price = $pr_item->invoices->sum('price') / $pr_item->invoices->count();
+            $sales += $pr_item->invoices->sum('qty') * $mean_price;
+            if ($pr_item->returnInvoices->count()) {
+                $sales -= $pr_item->returnInvoices->sum('qty') * $mean_price;
+            }
+        }
+
+        return $sales;
+    }
+
+    public function currentMonthInvoicedSales()
+    {
+        //fetch all related invoices 
+        $invoices_query =  DB::table('invoices')
+            ->whereMonth('date', Carbon::now()->month)
+            ->whereYear('date', Carbon::now()->year)
+            ->get();
+
+        //fetch invoiced products ID's
+        $products_query  = DB::table('invoice_details')->whereIn('invoice_id', $invoices_query->pluck('id'));
+        if (request('product_id')) {
+            $products_query->when(request('product_id'), function ($q) {
+                return $q->where('product_id', request('product_id'));
+            });
+        }
+        //fetch discounts details
+        $invoiceIDs = $invoices_query->pluck('id');
+        //fetch products details
+
+        $products = Product::whereIn('id', $products_query->pluck('product_id'))
+            ->with(['invoices' => function ($q) use ($invoiceIDs) {
+                $q->whereIn('invoice_id', $invoiceIDs);
+            }])->with(['returnInvoices' => function ($q) {
+                $q->whereMonth('date', Carbon::now()->month);
+            }])->with('purchases')
+            ->get();
+
+        $sales = 0;
+        foreach ($products as $key => $pr_item) {
+            $mean_price = $pr_item->invoices->sum('price') / $pr_item->invoices->count();
+            $sales += $pr_item->invoices->sum('qty') * $mean_price;
+            if ($pr_item->returnInvoices->count()) {
+                $sales -= $pr_item->returnInvoices->sum('qty') * $mean_price;
+            }
+        }
+
+        return $sales;
+    }
+
+    public function lastMonthInvoicedSales()
+    {
+        //fetch all related invoices 
+        $invoices_query =  DB::table('invoices')
+        ->whereYear('created_at', Carbon::now()->subMonth()->year)
+        ->whereMonth('created_at', Carbon::now()->subMonth()->month)
+        ->get();
+
+        //fetch invoiced products ID's
+        $products_query  = DB::table('invoice_details')->whereIn('invoice_id', $invoices_query->pluck('id'));
+        if (request('product_id')) {
+            $products_query->when(request('product_id'), function ($q) {
+                return $q->where('product_id', request('product_id'));
+            });
+        }
+        //fetch discounts details
+        $invoiceIDs = $invoices_query->pluck('id');
+        //fetch products details
+
+        $products = Product::whereIn('id', $products_query->pluck('product_id'))
+            ->with(['invoices' => function ($q) use ($invoiceIDs) {
+                $q->whereIn('invoice_id', $invoiceIDs);
+            }])->with(['returnInvoices' => function ($q) {
+                $q->whereMonth('date', Carbon::now()->subMonth()->month);
+            }])->with('purchases')
+            ->get();
+
+        $sales = 0;
+        foreach ($products as $key => $pr_item) {
+            $mean_price = $pr_item->invoices->sum('price') / $pr_item->invoices->count();
+            $sales += $pr_item->invoices->sum('qty') * $mean_price;
+            if ($pr_item->returnInvoices->count()) {
+                $sales -= $pr_item->returnInvoices->sum('qty') * $mean_price;
+            }
+        }
+
+        return $sales;
+    }
 }
