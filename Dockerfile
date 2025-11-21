@@ -1,5 +1,5 @@
 # ============================================
-# Stage 1: Composer dependencies
+# Stage 1: Composer dependencies (Vendor)
 # ============================================
 FROM composer:2 AS vendor
 
@@ -21,43 +21,42 @@ RUN composer install --no-dev --optimize-autoloader --no-interaction --prefer-di
 COPY . .
 
 
+
 # ============================================
-# Stage 3: Final Laravel production image
+# Stage 2: Final Laravel production image
 # ============================================
 FROM php:8.2-apache
 
-# Install system dependencies
+# Install system dependencies required by Laravel + Apache
 RUN apt-get update && apt-get install -y \
-    git curl zip unzip vim nano libpng-dev libjpeg-dev libfreetype6-dev \
-    libzip-dev libxml2-dev libicu-dev libonig-dev certbot python3-certbot-apache \
+    git curl zip unzip vim nano \
+    libpng-dev libjpeg-dev libfreetype6-dev \
+    libzip-dev libxml2-dev libicu-dev libonig-dev \
+    certbot python3-certbot-apache \
     && docker-php-ext-configure gd --with-freetype --with-jpeg \
     && docker-php-ext-install pdo_mysql mbstring bcmath gd zip intl \
     && a2enmod rewrite headers ssl \
     && rm -rf /var/lib/apt/lists/*
 
-# Enable Apache modules
-RUN a2enmod rewrite headers
-
-# 4️⃣ ✅ Add this line to fix FQDN warning
+# Fix FQDN warning
 RUN echo "ServerName everydaypak.com" >> /etc/apache2/apache2.conf
 
-# 5️⃣ Copy Apache virtual host config
+# Copy Apache virtual host config
 COPY docker/apache/000-default.conf /etc/apache2/sites-available/000-default.conf
 
 WORKDIR /var/www/everyday_store/backend
 
-# Copy Laravel app from previous stages
+# Copy vendor + Laravel code from composer stage
 COPY --from=vendor /app ./
-# COPY --from=frontend /app/public ./public
 
-# Copy startup script
+# Startup script
 COPY docker/startup.sh /usr/local/bin/startup.sh
 RUN chmod +x /usr/local/bin/startup.sh
 
-# Ensure correct permissions
-RUN mkdir -p /var/www/everyday_store/backend/storage /var/www/everyday_store/backend/bootstrap/cache \
+# Laravel storage & cache permissions
+RUN mkdir -p storage bootstrap/cache \
     && chown -R www-data:www-data /var/www/everyday_store/backend \
-    && chmod -R 775 /var/www/everyday_store/backend/storage /var/www/everyday_store/backend/bootstrap/cache
+    && chmod -R 775 storage bootstrap/cache
 
 EXPOSE 80
 CMD ["startup.sh"]
