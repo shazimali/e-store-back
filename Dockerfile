@@ -34,7 +34,7 @@ WORKDIR /var/www/everyday_store/backend
 
 # Copy Laravel app from previous stages
 COPY --from=vendor /app ./
-COPY --from=frontend /app/public ./public
+# COPY --from=frontend /app/public ./public
 
 # Copy startup script
 COPY docker/startup.sh /usr/local/bin/startup.sh
