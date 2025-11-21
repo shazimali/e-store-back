@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Gate;
 use App\Models\Role;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
+
 class PermissionsServiceProvider extends ServiceProvider
 {
     /**
@@ -26,20 +27,32 @@ class PermissionsServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        if(Schema::hasTable('roles') && DB::connection()) {
-            $roles = Role::with('permissions')->get();
+        // Skip if running in console (composer install, artisan migrate, etc.)
+        if ($this->app->runningInConsole()) {
+            return;
+        }
+
+        // Only proceed if the roles table exists
+        if (Schema::hasTable('roles')) {
+            try {
+                $roles = Role::with('permissions')->get();
+            } catch (\Exception $e) {
+                // Skip if DB is not ready
+                return;
+            }
+
             $permissionsArray = [];
+
             foreach ($roles as $role) {
-                foreach ($role->permissions as $permissions) {
-                    $permissionsArray[$permissions->key][] = $role->id;
+                foreach ($role->permissions as $permission) {
+                    $permissionsArray[$permission->key][] = $role->id;
                 }
             }
-            
-            // Every permission may have multiple roles assigned
-            foreach ($permissionsArray as $title => $roles) {
-                Gate::define($title, function ($user) use ($roles) {
-                    // We check if we have the needed roles among current user's roles
-                    return count(array_intersect($user->roles->pluck('id')->toArray(), $roles)) > 0;
+
+            // Define gates for each permission
+            foreach ($permissionsArray as $permissionKey => $roleIds) {
+                Gate::define($permissionKey, function ($user) use ($roleIds) {
+                    return count(array_intersect($user->roles->pluck('id')->toArray(), $roleIds)) > 0;
                 });
             }
         }
