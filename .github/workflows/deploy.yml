@@ -29,7 +29,7 @@ jobs:
           username: ${{ secrets.DOCKER_HUB_USERNAME }}
           password: ${{ secrets.DOCKER_HUB_TOKEN }}
 
-      # 4️⃣ Build and Push Docker Image
+      # 4️⃣ Build & Push Image
       - name: 🏗️ Build and Push Docker Image
         uses: docker/build-push-action@v6
         with:
@@ -38,7 +38,7 @@ jobs:
             ${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}
             ${{ env.IMAGE_NAME }}:sha-${{ github.sha }}
 
-      # 5️⃣ Test SSH connection to VPS
+      # 5️⃣ Test SSH connection
       - name: 🧪 Test SSH connection
         uses: appleboy/ssh-action@v1.1.0
         with:
@@ -46,10 +46,10 @@ jobs:
           username: ${{ secrets.VPS_USER }}
           key: ${{ secrets.VPS_SSH_KEY }}
           script: |
-            echo "✅ SSH connection successful."
+            echo "✅ SSH connected."
             docker --version || echo "⚠️ Docker not installed!"
 
-      # 6️⃣ Deploy new image on VPS (rollback + APP_KEY fix)
+      # 6️⃣ Deployment Script
       - name: 🚀 Deploy on VPS
         uses: appleboy/ssh-action@v1.1.0
         with:
@@ -60,12 +60,20 @@ jobs:
             set -e
             cd /var/www/everyday_store/backend
 
-            echo "📦 Pulling latest image..."
+            echo "📦 Pull latest image..."
             docker pull ${{ env.IMAGE_NAME }}:latest
 
-            echo "📋 Backing up current container..."
-            docker stop everyday_store_backend_app || true
-            docker rename everyday_store_backend_app everyday_store_backend_app_backup || true
+            echo "🔍 Check if current container exists..."
+            if docker ps -a --format '{{.Names}}' | grep -q "^everyday_store_backend_app$"; then
+              echo "🛑 Stopping existing container..."
+              docker stop everyday_store_backend_app || true
+
+              echo "📦 Creating backup..."
+              docker rm -f everyday_store_backend_app_backup || true
+              docker rename everyday_store_backend_app everyday_store_backend_app_backup || true
+            else
+              echo "ℹ️ No previous container found."
+            fi
 
             echo "🚀 Starting new container..."
             if docker run -d \
@@ -78,31 +86,32 @@ jobs:
               -p 8080:80 \
               ${{ env.IMAGE_NAME }}:latest; then
 
-              echo "✅ Deployment successful!"
+              echo "✅ Container started! Cleaning backup..."
               docker rm -f everyday_store_backend_app_backup || true
 
-              echo "🗝️ Checking APP_KEY..."
-              docker exec everyday_store_backend_app bash -c '
+              echo "🗝️ APP_KEY check..."
+              docker exec everyday_store_backend_app sh -c '
                 if ! grep -q "APP_KEY=base64:" /var/www/everyday_store/backend/.env; then
-                  echo "⚙️ Generating new APP_KEY..."
                   php artisan key:generate --force
-                else
-                  echo "✅ APP_KEY already set."
                 fi
               '
 
               echo "🔁 Running migrations..."
               docker exec everyday_store_backend_app php artisan migrate --force || true
 
-              echo "🔗 Fixing storage symlink..."
+              echo "🔗 Fixing storage link..."
               docker exec everyday_store_backend_app php artisan storage:link || true
 
-              echo "🧹 Clearing Laravel caches..."
+              echo "🧹 Clearing cache..."
               docker exec everyday_store_backend_app php artisan optimize:clear || true
 
             else
-              echo "❌ Deployment failed. Rolling back..."
+              echo "❌ New container failed! Rolling back..."
+
               docker rm -f everyday_store_backend_app || true
-              docker rename everyday_store_backend_app_backup everyday_store_backend_app || true
-              docker start everyday_store_backend_app
+
+              if docker ps -a --format '{{.Names}}' | grep -q "^everyday_store_backend_app_backup$"; then
+                docker rename everyday_store_backend_app_backup everyday_store_backend_app || true
+                docker start everyday_store_backend_app || true
+              fi
             fi
