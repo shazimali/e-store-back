@@ -11,10 +11,7 @@ WORKDIR /var/www/everyday_store/backend
 
 # Copy Laravel project
 COPY . .
-
-# Install Composer dependencies
-COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
-RUN COMPOSER_MEMORY_LIMIT=-1 composer install --no-dev --optimize-autoloader --no-interaction --prefer-dist
+RUN composer install --no-dev --optimize-autoloader --no-interaction --prefer-dist
 
 # Apache configuration
 RUN echo "ServerName everydaypak.com" >> /etc/apache2/apache2.conf
