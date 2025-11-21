@@ -2,9 +2,23 @@
 # Stage 1: Composer dependencies
 # ============================================
 FROM composer:2 AS vendor
+
+# Install required PHP extensions for Composer to run successfully
+RUN apt-get update && apt-get install -y \
+    libicu-dev libzip-dev libpng-dev libjpeg-dev libfreetype6-dev \
+    && docker-php-ext-configure gd --with-freetype --with-jpeg \
+    && docker-php-ext-install pdo_mysql mbstring bcmath zip intl gd
+
 WORKDIR /app
+
+# Copy only composer files first (cache-friendly)
+COPY composer.json composer.lock ./
+
+# Install PHP dependencies (no-dev for production)
+RUN composer install --no-dev --optimize-autoloader --no-interaction --prefer-dist
+
+# Now copy the rest of the application source
 COPY . .
-RUN composer install --no-dev --optimize-autoloader
 
 
 # ============================================
