@@ -5,6 +5,7 @@ namespace App\Providers;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\Gate;
 use App\Models\Role;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 class PermissionsServiceProvider extends ServiceProvider
 {
@@ -25,7 +26,7 @@ class PermissionsServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        if(Schema::hasTable('roles')) {
+        if(Schema::hasTable('roles') && DB::connection()) {
             $roles = Role::with('permissions')->get();
             $permissionsArray = [];
             foreach ($roles as $role) {
@@ -41,6 +42,6 @@ class PermissionsServiceProvider extends ServiceProvider
                     return count(array_intersect($user->roles->pluck('id')->toArray(), $roles)) > 0;
                 });
             }
-            }
+        }
     }
 }

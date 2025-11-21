@@ -1,26 +1,49 @@
-FROM php:8.0-apache
-WORKDIR /var/www/html
+# ============================================
+# Stage 1: Composer dependencies
+# ============================================
+FROM composer:2 AS vendor
+WORKDIR /app
+COPY . .
+RUN composer install --no-dev --optimize-autoloader --no-interaction --prefer-dist
 
-# Mod Rewrite
-RUN a2enmod rewrite
 
-# Linux Library
-RUN apt-get update -y && apt-get install -y \
-    libicu-dev \
-    libmariadb-dev \
-    unzip zip \
-    zlib1g-dev \
-    libpng-dev \
-    libjpeg-dev \
-    libfreetype6-dev \
-    libjpeg62-turbo-dev \
-    libpng-dev 
+# ============================================
+# Stage 3: Final Laravel production image
+# ============================================
+FROM php:8.2-apache
 
-# Composer
-COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    git curl zip unzip vim nano libpng-dev libjpeg-dev libfreetype6-dev \
+    libzip-dev libxml2-dev libicu-dev libonig-dev certbot python3-certbot-apache \
+    && docker-php-ext-configure gd --with-freetype --with-jpeg \
+    && docker-php-ext-install pdo_mysql mbstring bcmath gd zip intl \
+    && a2enmod rewrite headers ssl \
+    && rm -rf /var/lib/apt/lists/*
 
-# PHP Extension
-RUN docker-php-ext-install gettext intl pdo_mysql gd
+# Enable Apache modules
+RUN a2enmod rewrite headers
 
-RUN docker-php-ext-configure gd --enable-gd --with-freetype --with-jpeg \
-    && docker-php-ext-install -j$(nproc) gd
+# 4️⃣ ✅ Add this line to fix FQDN warning
+RUN echo "ServerName everydaypak.com" >> /etc/apache2/apache2.conf
+
+# 5️⃣ Copy Apache virtual host config
+COPY docker/apache/000-default.conf /etc/apache2/sites-available/000-default.conf
+
+WORKDIR /var/www/everyday_store/backend
+
+# Copy Laravel app from previous stages
+COPY --from=vendor /app ./
+COPY --from=frontend /app/public ./public
+
+# Copy startup script
+COPY docker/startup.sh /usr/local/bin/startup.sh
+RUN chmod +x /usr/local/bin/startup.sh
+
+# Ensure correct permissions
+RUN mkdir -p /var/www/everyday_store/backend/storage /var/www/everyday_store/backend/bootstrap/cache \
+    && chown -R www-data:www-data /var/www/everyday_store/backend \
+    && chmod -R 775 /var/www/everyday_store/backend/storage /var/www/everyday_store/backend/bootstrap/cache
+
+EXPOSE 80
+CMD ["startup.sh"]

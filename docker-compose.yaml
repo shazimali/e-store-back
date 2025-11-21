@@ -1,35 +1,25 @@
-networks:
-  app:
+version: "3.9"
 
 services:
-
-  app-docker:
-    container_name: app-docker
-    build: .
+  everyday_store_backend_app:
+    image: shazimali/everyday-store-backend:latest
+    container_name: everyday_store_backend_app
+    restart: always
+    env_file:
+      - /var/www/everyday_store/backend/.env # Your manually created .env
+    ports:
+      - "8080:80"
+    networks:
+      - global_network
     volumes:
-      - .:/var/www/html
-    ports:
-      - 8000:80
-    depends_on:
-      - mysql
-      - phpmyadmin
-    networks:
-      - app
+      - everyday_store_backend_storage:/var/www/everyday_store/backend/storage
+      - everyday_store_backend_cache:/var/www/everyday_store/backend/bootstrap/cache
+      - /var/www/everyday_store/backend/.env:/var/www/everyday_store/backend/.env
 
-  mysql:
-    image: mysql:8.3
-    container_name: mysql
-    environment:
-      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
-      MYSQL_DATABASE: ${DB_DATABASE}
-    networks:
-      - app
-  phpmyadmin:
-    image: phpmyadmin:5.2
-    container_name: phpmyadmin
-    ports:
-      - 8001:80
-    environment:
-      - PMA_ARBITRARY=1
-    networks:
-      - app
+networks:
+  global_network:
+    external: true
+
+volumes:
+  everyday_store_backend_storage:
+  everyday_store_backend_cache:
