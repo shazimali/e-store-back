@@ -83,7 +83,7 @@ jobs:
               -v everyday_store_backend_storage:/var/www/everyday_store/backend/storage \
               -v everyday_store_backend_cache:/var/www/everyday_store/backend/bootstrap/cache \
               --network global_network \
-              -p 8080:80 \
+              -p 8082:80 \
               ${{ env.IMAGE_NAME }}:latest; then
 
               echo "✅ Container started! Cleaning backup..."

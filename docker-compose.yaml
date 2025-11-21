@@ -8,7 +8,7 @@ services:
     env_file:
       - /var/www/everyday_store/backend/.env # Your manually created .env
     ports:
-      - "8080:80"
+      - "8082:80"
     networks:
       - global_network
     volumes:
