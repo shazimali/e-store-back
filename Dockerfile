@@ -1,26 +1,28 @@
-# ============================================
 # Stage 1: PHP + Composer (Vendor)
-# ============================================
 FROM php:8.2-cli AS vendor
 
-# Install PHP extensions required by Laravel
+# Install system dependencies & build tools for PHP extensions
 RUN apt-get update && apt-get install -y \
-    unzip git curl libicu-dev libzip-dev libpng-dev libjpeg-dev libfreetype6-dev \
+    unzip git curl \
+    build-essential \
+    libicu-dev libzip-dev \
+    libpng-dev libjpeg-dev libfreetype6-dev \
     && docker-php-ext-configure gd --with-freetype --with-jpeg \
-    && docker-php-ext-install pdo_mysql mbstring bcmath zip intl gd
+    && docker-php-ext-install pdo_mysql mbstring bcmath zip intl gd \
+    && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Install Composer
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
 WORKDIR /app
 
-# Copy composer files first (better caching)
+# Copy composer files first
 COPY composer.json composer.lock ./
 
 # Install PHP dependencies
 RUN composer install --no-dev --optimize-autoloader --no-interaction --prefer-dist
 
-# Copy full Laravel project
+# Copy full Laravel app
 COPY . .
 
 
