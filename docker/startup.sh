@@ -1,22 +1,43 @@
+#!/bin/bash
 set -e
 
 echo "⏳ Waiting for database connection..."
-until php -r "try {
-    new PDO('mysql:host=' . getenv('DB_HOST') . ';dbname=' . getenv('DB_DATABASE'),
-    getenv('DB_USERNAME'), getenv('DB_PASSWORD'));
-    echo '✅ Database ready'; } catch (Exception \$e) { echo '.'; sleep(3); }"; do :; done
 
+# Wait until database is ready (adjust DB_HOST and DB_PORT from .env)
+until php artisan migrate:status > /dev/null 2>&1; do
+    echo "Waiting for database..."
+    sleep 3
+done
+
+echo "✅ Database ready"
+
+# Run Laravel optimizations
 echo "🚀 Running Laravel optimizations..."
-php artisan migrate --force || true
 php artisan config:cache
 php artisan route:cache
 php artisan view:cache
-php artisan optimize
+php artisan event:cache || true
 
-# Ensure correct permissions
-mkdir -p /var/www/everyday_store/backend/storage /var/www/everyday_store/backend/bootstrap/cache
-chown -R www-data:www-data /var/www/everyday_store/backend
-chmod -R 775 /var/www/everyday_store/backend/storage /var/www/everyday_store/backend/bootstrap/cache
+# Generate APP_KEY if missing
+if ! grep -q "APP_KEY=base64:" .env; then
+    echo "🗝️ Generating APP_KEY..."
+    php artisan key:generate --force
+else
+    echo "✅ APP_KEY already set"
+fi
 
+# Run pending migrations
+echo "🔁 Running migrations..."
+php artisan migrate --force || true
+
+# Fix storage symlink
+echo "🔗 Fixing storage link..."
+php artisan storage:link || true
+
+# Clear caches
+echo "🧹 Clearing cache..."
+php artisan optimize:clear || true
+
+# Start Apache in foreground
 echo "✅ Starting Apache server..."
 apache2-foreground
