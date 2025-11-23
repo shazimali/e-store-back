@@ -60,7 +60,7 @@ class DashboardController extends Controller
                 'monthly_sales' => DB::select("call monthly_sales"),
                 'stores' => DB::select("call stores"),
                 'top_store' => DB::select('call heigh_sale_store'),
-                'current_last_month_stores_sale' => 1234, // DB::select('call current_last_month_stores_sale'),
+                'current_last_month_stores_sale' =>  DB::select('call current_last_month_stores_sale'),
                 'top_last_month_store' => DB::select('call hiegh_sale_last_month_store')
             ]);
         } catch (\Throwable $th) {
@@ -181,9 +181,9 @@ class DashboardController extends Controller
     {
         //fetch all related invoices 
         $invoices_query =  DB::table('invoices')
-        ->whereYear('created_at', Carbon::now()->subMonth()->year)
-        ->whereMonth('created_at', Carbon::now()->subMonth()->month)
-        ->get();
+            ->whereYear('created_at', Carbon::now()->subMonth()->year)
+            ->whereMonth('created_at', Carbon::now()->subMonth()->month)
+            ->get();
 
         //fetch invoiced products ID's
         $products_query  = DB::table('invoice_details')->whereIn('invoice_id', $invoices_query->pluck('id'));
@@ -330,9 +330,9 @@ class DashboardController extends Controller
     {
         //fetch all related invoices 
         $invoices_query =  DB::table('invoices')
-        ->whereYear('created_at', Carbon::now()->subMonth()->year)
-        ->whereMonth('created_at', Carbon::now()->subMonth()->month)
-        ->get();
+            ->whereYear('created_at', Carbon::now()->subMonth()->year)
+            ->whereMonth('created_at', Carbon::now()->subMonth()->month)
+            ->get();
 
         //fetch invoiced products ID's
         $products_query  = DB::table('invoice_details')->whereIn('invoice_id', $invoices_query->pluck('id'));
