@@ -4,8 +4,18 @@
 FROM php:8.2-apache AS base
 
 RUN apt-get update && apt-get install -y \
-    git unzip curl libzip-dev libonig-dev zlib1g-dev libxml2-dev \
-    && docker-php-ext-install pdo_mysql mbstring zip \
+    git unzip curl \
+    libzip-dev libonig-dev libxml2-dev libicu-dev \
+    libpng-dev libjpeg-dev libfreetype6-dev \
+    && docker-php-ext-configure gd --with-freetype --with-jpeg \
+    && docker-php-ext-install \
+    pdo_mysql \
+    mbstring \
+    zip \
+    intl \
+    gd \
+    bcmath \
+    exif \
     && a2enmod rewrite \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 
@@ -18,12 +28,18 @@ FROM composer:2 AS vendor
 
 WORKDIR /app
 
+ENV COMPOSER_MEMORY_LIMIT=-1
+
 COPY composer.json composer.lock ./
+
+RUN composer validate --no-check-publish
+
 RUN composer install \
     --no-dev \
     --no-interaction \
     --prefer-dist \
-    --optimize-autoloader
+    --optimize-autoloader \
+    --no-scripts
 
 # ==================================================
 # Stage 3: Final Runtime Image
