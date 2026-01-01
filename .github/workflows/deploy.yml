@@ -1,55 +1,52 @@
-name: 🚀 Deploy Everyday Store Backend (Docker Hub → VPS)
+name: 🚀 Deploy Everyday Store Backend (Fast)
 
 on:
   push:
-    branches:
-      - main
+    branches: [main]
+    paths:
+      - '**.php'
+      - 'composer.json'
+      - 'composer.lock'
+      - 'Dockerfile'
+      - 'docker/**'
 
 env:
   IMAGE_NAME: shazimali/everyday-store-backend
-  IMAGE_TAG: latest
 
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
 
     steps:
-      # 1️⃣ Checkout repository
+      # 1️⃣ Checkout
       - name: 🧱 Checkout code
         uses: actions/checkout@v4
 
-      # 2️⃣ Set up Docker Buildx
+      # 2️⃣ Enable Docker Buildx
       - name: 🔧 Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      # 3️⃣ Login to Docker Hub
+      # 3️⃣ Login Docker Hub
       - name: 🔑 Login to Docker Hub
         uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKER_HUB_USERNAME }}
           password: ${{ secrets.DOCKER_HUB_TOKEN }}
 
-      # 4️⃣ Build & Push Image
-      - name: 🏗️ Build and Push Docker Image
+      # 4️⃣ Build & Push (CACHED)
+      - name: 🏗️ Build and Push Docker Image (Cached)
         uses: docker/build-push-action@v6
         with:
+          context: .
           push: true
           tags: |
-            ${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}
+            ${{ env.IMAGE_NAME }}:latest
             ${{ env.IMAGE_NAME }}:sha-${{ github.sha }}
+          pull: false
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
 
-      # 5️⃣ Test SSH connection
-      - name: 🧪 Test SSH connection
-        uses: appleboy/ssh-action@v1.1.0
-        with:
-          host: ${{ secrets.VPS_HOST }}
-          username: ${{ secrets.VPS_USER }}
-          key: ${{ secrets.VPS_SSH_KEY }}
-          script: |
-            echo "✅ SSH connected."
-            docker --version || echo "⚠️ Docker not installed!"
-
-      # 6️⃣ Deployment Script
+      # 5️⃣ Deploy to VPS (Zero Overhead)
       - name: 🚀 Deploy on VPS
         uses: appleboy/ssh-action@v1.1.0
         with:
@@ -60,58 +57,15 @@ jobs:
             set -e
             cd /var/www/everyday_store/backend
 
-            echo "📦 Pull latest image..."
             docker pull ${{ env.IMAGE_NAME }}:latest
 
-            echo "🔍 Check if current container exists..."
-            if docker ps -a --format '{{.Names}}' | grep -q "^everyday_store_backend_app$"; then
-              echo "🛑 Stopping existing container..."
-              docker stop everyday_store_backend_app || true
+            docker rm -f everyday_store_backend_app || true
 
-              echo "📦 Creating backup..."
-              docker rm -f everyday_store_backend_app_backup || true
-              docker rename everyday_store_backend_app everyday_store_backend_app_backup || true
-            else
-              echo "ℹ️ No previous container found."
-            fi
-
-            echo "🚀 Starting new container..."
-            if docker run -d \
+            docker run -d \
               --name everyday_store_backend_app \
-              --env-file /var/www/everyday_store/backend/.env \
-              -v /var/www/everyday_store/backend/.env:/var/www/everyday_store/backend/.env \
+              --env-file .env \
               -v everyday_store_backend_storage:/var/www/everyday_store/backend/storage \
               -v everyday_store_backend_cache:/var/www/everyday_store/backend/bootstrap/cache \
               --network global_network \
               -p 8082:80 \
-              ${{ env.IMAGE_NAME }}:latest; then
-
-              echo "✅ Container started! Cleaning backup..."
-              docker rm -f everyday_store_backend_app_backup || true
-
-              echo "🗝️ APP_KEY check..."
-              docker exec everyday_store_backend_app sh -c '
-                if ! grep -q "APP_KEY=base64:" /var/www/everyday_store/backend/.env; then
-                  php artisan key:generate --force
-                fi
-              '
-
-              echo "🔁 Running migrations..."
-              docker exec everyday_store_backend_app php artisan migrate --force || true
-
-              echo "🔗 Fixing storage link..."
-              docker exec everyday_store_backend_app php artisan storage:link || true
-
-              echo "🧹 Clearing cache..."
-              docker exec everyday_store_backend_app php artisan optimize:clear || true
-
-            else
-              echo "❌ New container failed! Rolling back..."
-
-              docker rm -f everyday_store_backend_app || true
-
-              if docker ps -a --format '{{.Names}}' | grep -q "^everyday_store_backend_app_backup$"; then
-                docker rename everyday_store_backend_app_backup everyday_store_backend_app || true
-                docker start everyday_store_backend_app || true
-              fi
-            fi
+              ${{ env.IMAGE_NAME }}:latest
