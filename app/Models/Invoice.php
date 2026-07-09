@@ -19,9 +19,7 @@ class Invoice extends Model
         'branch_id',
         'total_qty',
         'total_price',
-
         'remarks',
-
         'is_ex_tax'
     ];
     protected $appends = ['type', 'total'];
