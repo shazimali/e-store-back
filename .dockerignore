@@ -10,5 +10,4 @@ tests
 .env
 Dockerfile
 docker-compose.yml
-docker/
 README.md
