@@ -72,15 +72,15 @@ jobs:
               ${{ env.IMAGE_NAME }}:latest
 
             echo "⏳ Waiting for container to be healthy..."
-            for i in $(seq 1 15); do
+            for i in $(seq 1 30); do
               if curl -sf http://localhost:8082 > /dev/null 2>&1; then
                 echo "✅ Container is up and responding!"
                 exit 0
               fi
-              echo "Attempt $i/15 — waiting 3s..."
-              sleep 3
+              echo "Attempt $i/30 — waiting 5s..."
+              sleep 5
             done
 
-            echo "❌ Container did not respond after 45s. Showing logs:"
-            docker logs --tail=50 everyday_store_backend_app
+            echo "❌ Container did not respond after 150s. Showing logs:"
+            docker logs --tail=80 everyday_store_backend_app
             exit 1

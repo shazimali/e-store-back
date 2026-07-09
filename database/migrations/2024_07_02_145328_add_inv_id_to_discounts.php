@@ -14,7 +14,9 @@ return new class extends Migration
     public function up()
     {
         Schema::table('discounts', function (Blueprint $table) {
-            $table->integer('inv_id');
+            if (!Schema::hasColumn('discounts', 'inv_id')) {
+                $table->integer('inv_id');
+            }
         });
     }
 
