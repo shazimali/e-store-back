@@ -18,6 +18,17 @@ done
 
 echo "✅ Database check done"
 
+# Ensure required Laravel storage directories exist (critical on fresh volume mounts)
+echo "📁 Creating required storage directories..."
+mkdir -p storage/app/public \
+         storage/framework/cache/data \
+         storage/framework/sessions \
+         storage/framework/views \
+         storage/logs \
+         bootstrap/cache
+chmod -R 775 storage bootstrap/cache
+chown -R www-data:www-data storage bootstrap/cache 2>/dev/null || true
+
 # Generate APP_KEY if missing (check env var, not file — .env is not inside the container)
 if [ -z "$APP_KEY" ]; then
     echo "🗝️ Generating APP_KEY..."

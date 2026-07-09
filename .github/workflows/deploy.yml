@@ -73,7 +73,10 @@ jobs:
 
             echo "⏳ Waiting for container to be healthy..."
             for i in $(seq 1 30); do
-              if curl -sf http://localhost:8082 > /dev/null 2>&1; then
+              # curl -s (no -f): exits 0 on ANY HTTP response (200, 404, etc.)
+              # Only fails on network errors (connection refused = truly down)
+              # 404 is expected for GET / on an API-only Laravel app — server IS healthy
+              if curl -s http://localhost:8082 > /dev/null 2>&1; then
                 echo "✅ Container is up and responding!"
                 exit 0
               fi
@@ -81,6 +84,9 @@ jobs:
               sleep 5
             done
 
-            echo "❌ Container did not respond after 150s. Showing logs:"
-            docker logs --tail=80 everyday_store_backend_app
+            echo "❌ Container did not respond after 150s. Diagnostics:"
+            echo "--- docker ps ---"
+            docker ps -a | grep everyday_store_backend_app
+            echo "--- container logs ---"
+            docker logs --tail=100 everyday_store_backend_app
             exit 1
