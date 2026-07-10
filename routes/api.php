@@ -129,6 +129,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::get('/edit/fetch-branch-products/{branch_id}/{invoice_id}',[InvoicesController::class, 'fetchBranchProductsEdit']);
         Route::get('/fetch-invoice-for-print/{id}',[InvoicesController::class, 'fetchInvoiceById']);
         Route::post('/update/{id}',[InvoicesController::class, 'update']);
+        Route::delete('/delete/{id}',[InvoicesController::class, 'destroy']);
     });
     //company
     Route::prefix('/company-detail')->group(function () {

@@ -20,6 +20,7 @@ use App\Models\InvoiceDetail;
 use App\Models\Product;
 use App\Models\ReturnInvoiceDetail;
 use App\Models\Store;
+use App\Services\InvoiceService;
 use Illuminate\Http\Request;
 use PHPUnit\Framework\MockObject\Stub\ReturnReference;
 
@@ -186,37 +187,14 @@ class InvoicesController extends Controller
         return ($delivered_qty - $return_delivered_qty) - $invoiced_qty;
     }
 
-    function store(StoreInvoiceRequest $request) {
+    function store(StoreInvoiceRequest $request, InvoiceService $invoiceService) {
         $this->authorize('invoice_save');
-        $data = $request->all();
-        $data['invoice_id'] =  Invoice::count() > 0 ?  Invoice::latest('id')->first()->invoice_id+1 :3000;
-        $invoice = Invoice::create($data);
-
-        foreach ($request->products as $key => $product) {
-            InvoiceDetail::create([
-                'invoice_id' => $invoice->id,
-                'product_id' => $product['id'],
-                'qty' => $product['qty'],
-                'price' => $product['price'],
-                'sale_tax' => $product['sale_tax'],
-                'ext_tax' => $product['ext_tax'],
-                'date' => $request['date']
-            ]);
-        }
-        if(count($request->return_products)){
-            foreach ($request->return_products as $key => $product) {
-                ReturnInvoiceDetail::create([
-                    'invoice_id' => $invoice->id,
-                    'product_id' => $product['id'],
-                    'qty' => $product['qty'],
-                    'price' => $product['price'],
-                    'sale_tax' => $product['sale_tax'],
-                    'ext_tax' => $product['ext_tax'],
-                    'date' => $request['date']
-                ]);
-            }
-        }
-        return  response()->json($invoice->id);
+        $invoice = $invoiceService->store(
+            $request->all(),
+            $request->products,
+            $request->return_products ?? []
+        );
+        return response()->json($invoice->id);
     }
 
     function fetchInvoiceById($id) {
@@ -280,6 +258,10 @@ class InvoicesController extends Controller
                 'return_products'=> $all_return_products,
                 'total_qty' => $invoice->total_qty,
                 'total_price' => $invoice->total_price,
+                'fbr_status' => $invoice->fbr_status,
+                'fbr_irn' => $invoice->fbr_irn,
+                'fbr_usin' => $invoice->fbr_usin,
+                'is_cancelled' => (bool) $invoice->is_cancelled,
             ];
 
             return response()->json($data,200);
@@ -322,51 +304,22 @@ class InvoicesController extends Controller
         return $delivered_qty - $invoiced_qty;
     }
 
-    function update(UpdateInvoiceRequest $request, $id) {
+    function update(UpdateInvoiceRequest $request, $id, InvoiceService $invoiceService) {
         $this->authorize('invoice_edit');
         $invoice = Invoice::where('id',$id)->first();
-        $invoice->update([
-                "date" => $request->date,
-                "store_id" => $request->store_id,
-                "branch_id" => $request->branch_id,
-                "sr_number" => $request->sr_number,
-                "remarks" => $request->remarks,
-                "total_qty" => $request->total_qty,
-                "total_price" => $request->total_price,
-                "discount" => $request->discount
-        ]);
+        $invoiceService->update(
+            $invoice,
+            $request->all(),
+            $request->products,
+            $request->return_products ?? []
+        );
+        return response()->json($invoice->id);
+    }
 
-        InvoiceDetail::where('invoice_id',$invoice->id)->delete();
-        ReturnInvoiceDetail::where('invoice_id',$invoice->id)->delete();
-        
-        foreach ($request->products as $key => $product) {
-            InvoiceDetail::create([
-                'invoice_id' => $invoice->id,
-                'product_id' => $product['id'],
-                'qty' => $product['qty'],
-                'price' => $product['price'],
-                'sale_tax' => $product['sale_tax'],
-                'ext_tax' => $product['ext_tax'],
-                'date' => $request['date']
-            ]);
-        }
-
-        if(count($request->return_products) > 0){
-
-            foreach ($request->return_products as $key => $return_product) {
-                ReturnInvoiceDetail::create([
-                    'invoice_id' => $invoice->id,
-                    'product_id' => $return_product['id'],
-                    'qty' => $return_product['qty'],
-                    'price' => $return_product['price'],
-                    'sale_tax' => $return_product['sale_tax'],
-                    'ext_tax' => $return_product['ext_tax'],
-                    'date' => $request['date']
-                ]);
-            }
-            
-        }
-
-        return  response()->json($invoice->id);
+    function destroy($id, InvoiceService $invoiceService) {
+        $this->authorize('invoice_delete');
+        $invoice = Invoice::where('id',$id)->first();
+        $invoiceService->cancel($invoice);
+        return response()->json(['message' => 'Invoice cancelled successfully']);
     }
 }

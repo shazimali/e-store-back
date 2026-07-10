@@ -24,6 +24,9 @@ class InvoiceListResoruce extends JsonResource
             'total_qty' => $this->total_qty,
             'total_price' => $this->total_price,
             'created_at' => $this->created_at->toDateString(),
+            'fbr_status' => $this->fbr_status,
+            'fbr_irn' => $this->fbr_irn,
+            'is_cancelled' => (bool) $this->is_cancelled,
         ];
     }
 }

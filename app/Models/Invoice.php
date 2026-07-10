@@ -20,9 +20,24 @@ class Invoice extends Model
         'total_qty',
         'total_price',
         'remarks',
-        'is_ex_tax'
+        'is_ex_tax',
+        'fbr_usin',
+        'fbr_irn',
+        'fbr_invoice_type',
+        'fbr_ref_usin',
+        'fbr_status',
+        'fbr_response',
+        'fbr_submitted_at',
+        'is_cancelled'
     ];
+
+    protected $casts = [
+        'fbr_response' => 'array',
+        'is_cancelled' => 'boolean',
+    ];
+
     protected $appends = ['type', 'total'];
+
 
     public function store()
     {

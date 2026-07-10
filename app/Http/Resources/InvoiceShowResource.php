@@ -30,6 +30,11 @@ class InvoiceShowResource extends JsonResource
             'return_products'=> InvoicePrintProductsResource::collection($this->return_details),
             'total_qty' => $this->total_qty,
             'total_price' => $this->total_price,
+            'fbr_status' => $this->fbr_status,
+            'fbr_irn' => $this->fbr_irn,
+            'fbr_usin' => $this->fbr_usin,
+            'is_cancelled' => (bool) $this->is_cancelled,
+            'fbr_qr_url' => $this->fbr_irn ? 'https://vat.fbr.gov.pk/fbr-ims/verify?in=' . $this->fbr_irn : null,
         ];
     }
 }
