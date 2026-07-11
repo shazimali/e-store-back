@@ -4,7 +4,7 @@
 FROM php:8.2-apache AS base
 
 RUN apt-get update && apt-get install -y \
-    git unzip curl \
+    git unzip curl supervisor \
     libzip-dev libonig-dev libxml2-dev libicu-dev \
     libpng-dev libjpeg-dev libfreetype6-dev \
     && docker-php-ext-configure gd --with-freetype --with-jpeg \
@@ -55,6 +55,9 @@ COPY . .
 # Apache config
 RUN echo "ServerName api.everydaypak.com" >> /etc/apache2/apache2.conf
 COPY docker/apache/000-default.conf /etc/apache2/sites-available/000-default.conf
+
+# Supervisor config
+COPY docker/supervisor/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 
 # Startup script
 COPY docker/startup.sh /usr/local/bin/startup.sh

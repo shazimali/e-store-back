@@ -52,6 +52,6 @@ php artisan route:cache
 php artisan view:cache
 php artisan event:cache || true
 
-# Start Apache in foreground
-echo "✅ Starting Apache server..."
-exec apache2-foreground
+# Start Supervisor (manages Apache + Laravel queue worker)
+echo "✅ Starting Supervisor (Apache + Queue Worker)..."
+exec /usr/bin/supervisord -c /etc/supervisor/conf.d/supervisord.conf
