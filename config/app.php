@@ -60,6 +60,8 @@ return [
 
     'frontend_url' => env('FRONTEND_URL', 'http://localhost:3000'),
 
+    'horizon_secret' => env('HORIZON_SECRET'),
+
     /*
     |--------------------------------------------------------------------------
     | Application Timezone
@@ -195,6 +197,7 @@ return [
         App\Providers\AuthServiceProvider::class,
         // App\Providers\BroadcastServiceProvider::class,
         App\Providers\EventServiceProvider::class,
+        App\Providers\HorizonServiceProvider::class,
         App\Providers\RouteServiceProvider::class,
         App\Providers\PermissionsServiceProvider::class,
         App\Providers\ServicesServiceProvider::class

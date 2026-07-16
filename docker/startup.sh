@@ -51,6 +51,7 @@ php artisan config:cache
 php artisan route:cache
 php artisan view:cache
 php artisan event:cache || true
+php artisan horizon:publish || true
 
 # Start Supervisor (manages Apache + Laravel queue worker)
 echo "✅ Starting Supervisor (Apache + Queue Worker)..."
