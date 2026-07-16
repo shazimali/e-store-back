@@ -16,6 +16,15 @@ services:
       - everyday_store_backend_cache:/var/www/everyday_store/backend/bootstrap/cache
       - /var/www/everyday_store/backend/.env:/var/www/everyday_store/backend/.env
 
+  everyday_redis:
+    image: redis:alpine
+    container_name: everyday_redis
+    restart: always
+    networks:
+      - global_network
+    volumes:
+      - everyday_redis_data:/data
+
 networks:
   global_network:
     external: true
@@ -23,3 +32,4 @@ networks:
 volumes:
   everyday_store_backend_storage:
   everyday_store_backend_cache:
+  everyday_redis_data:
