@@ -14,6 +14,8 @@ class ResetPasswordNotification extends Notification implements ShouldQueue
     public string $token;
     public string $email;
 
+
+
     /**
      * Create a new notification instance.
      *
