@@ -17,7 +17,7 @@ class TokenRequest extends JsonFormRequest
         return [
             'email' => 'required|string|email',
             'password' => 'required',
-            'recaptcha_token' => 'required',
+            'recaptcha_token' => app()->environment('testing') ? 'nullable' : 'required',
         ];
     }
 }

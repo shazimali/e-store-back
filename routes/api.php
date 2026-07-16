@@ -31,6 +31,8 @@ use App\Http\Controllers\VouchersController;
 
 Route::post('/token',[AuthController::class, 'token'])->name('token');
 Route::post('/logout',[AuthController::class, 'logOut']);
+Route::post('/forgot-password',[AuthController::class, 'forgotPassword']);
+Route::post('/reset-password',[AuthController::class, 'resetPassword']);
 
 Route::middleware(['auth:sanctum'])->group(function () {
     
