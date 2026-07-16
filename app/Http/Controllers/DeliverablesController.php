@@ -18,6 +18,7 @@ use App\Models\Product;
 use App\Models\PurchaseDetail;
 use App\Models\Store;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 
 class DeliverablesController extends Controller
 {
@@ -127,6 +128,9 @@ class DeliverablesController extends Controller
                 'date' => $request['date']
             ]);
         }
+        
+        Cache::forget("branch.products.{$deliverable->branch_id}");
+
         return  response()->json($deliverable->id);
     }
 
@@ -168,6 +172,11 @@ class DeliverablesController extends Controller
                 'price' => $product['price'],
                 'date' => $request['date']
             ]);
+        }
+
+        Cache::forget("branch.products.{$deliverable->branch_id}");
+        if ($deliverable->branch_id != $request->branch_id) {
+            Cache::forget("branch.products.{$request->branch_id}");
         }
 
         return  response()->json('Deliverable updated successfully!');

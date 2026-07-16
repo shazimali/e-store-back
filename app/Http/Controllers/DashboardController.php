@@ -12,57 +12,64 @@ use App\Models\Voucher;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Cache;
 
 class DashboardController extends Controller
 {
     public function index()
     {
         try {
+            $productId = request('product_id');
+            $cacheKey = $productId ? "dashboard.stats.product.{$productId}" : "dashboard.stats.all";
 
-            return  response()->json([
-                'total_states' => [
-                    'discounts' => DB::select('call invoiced_discounts'),
-                    'sales' => DB::select("call invoiced_sale"),
-                    'sale_without_tax' => $this->invoicedSales(),
-                    'purchases' => $this->invoicedPurchase(), //DB::select("call invoiced_purchase"),
-                    'profit' => $this->invoicedSales() -  $this->invoicedPurchase(),
-                    'branches' => Branch::count(),
-                    'stores' => Store::count()
-                ],
-                'yearly_states' => [
-                    'sales' => DB::select('call current_year_invoiced_sales'),
-                    'sale_without_tax' => $this->currentYearInvoicedSales(),
-                    'purchases' => $this->currentYearInvoicedPurchase(), // DB::select('call current_year_invoiced_purchases'),
-                    'profit' => $this->currentYearInvoicedSales() -  $this->currentYearInvoicedPurchase(),
-                    'discounts' => DB::select('call current_year_invoiced_discounts'),
-                    'branches' => Branch::count(),
-                    'stores' => Store::count(),
-                ],
-                'monthly_states' => [
-                    'sales' =>  DB::select('call current_month_invoiced_sales'),
-                    'sale_without_tax' => $this->currentMonthInvoicedSales(),
-                    'purchases' => $this->currentMonthInvoicedPurchase(), //DB::select('call current_month_invoiced_purchases'),
-                    'profit' => $this->currentMonthInvoicedSales() -  $this->currentMonthInvoicedPurchase(),
-                    'discounts' => DB::select('call current_month_invoiced_discounts'),
-                    'branches' => Branch::count(),
-                    'stores' => Store::count(),
-                ],
-                'last_month_states' => [
-                    'sales' =>  DB::select('call last_month_invoiced_sales'),
-                    'sale_without_tax' => $this->lastMonthInvoicedSales(),
-                    'purchases' => $this->lastMonthInvoicedPurchase(), //DB::select('call current_month_invoiced_purchases'),
-                    'profit' => $this->lastMonthInvoicedSales() -  $this->lastMonthInvoicedPurchase(),
-                    'discounts' => DB::select('call last_month_invoiced_discounts'),
-                    'branches' => Branch::count(),
-                    'stores' => Store::count(),
-                ],
-                'yearly_sales' =>  DB::select("call yearly_sales"),
-                'monthly_sales' => DB::select("call monthly_sales"),
-                'stores' => DB::select("call stores"),
-                'top_store' => DB::select('call heigh_sale_store'),
-                'current_last_month_stores_sale' =>  DB::select('call current_last_month_stores_sale'),
-                'top_last_month_store' => DB::select('call hiegh_sale_last_month_store')
-            ]);
+            $data = Cache::remember($cacheKey, 300, function () {
+                return [
+                    'total_states' => [
+                        'discounts' => DB::select('call invoiced_discounts'),
+                        'sales' => DB::select("call invoiced_sale"),
+                        'sale_without_tax' => $this->invoicedSales(),
+                        'purchases' => $this->invoicedPurchase(), //DB::select("call invoiced_purchase"),
+                        'profit' => $this->invoicedSales() -  $this->invoicedPurchase(),
+                        'branches' => Branch::count(),
+                        'stores' => Store::count()
+                    ],
+                    'yearly_states' => [
+                        'sales' => DB::select('call current_year_invoiced_sales'),
+                        'sale_without_tax' => $this->currentYearInvoicedSales(),
+                        'purchases' => $this->currentYearInvoicedPurchase(), // DB::select('call current_year_invoiced_purchases'),
+                        'profit' => $this->currentYearInvoicedSales() -  $this->currentYearInvoicedPurchase(),
+                        'discounts' => DB::select('call current_year_invoiced_discounts'),
+                        'branches' => Branch::count(),
+                        'stores' => Store::count(),
+                    ],
+                    'monthly_states' => [
+                        'sales' =>  DB::select('call current_month_invoiced_sales'),
+                        'sale_without_tax' => $this->currentMonthInvoicedSales(),
+                        'purchases' => $this->currentMonthInvoicedPurchase(), //DB::select('call current_month_invoiced_purchases'),
+                        'profit' => $this->currentMonthInvoicedSales() -  $this->currentMonthInvoicedPurchase(),
+                        'discounts' => DB::select('call current_month_invoiced_discounts'),
+                        'branches' => Branch::count(),
+                        'stores' => Store::count(),
+                    ],
+                    'last_month_states' => [
+                        'sales' =>  DB::select('call last_month_invoiced_sales'),
+                        'sale_without_tax' => $this->lastMonthInvoicedSales(),
+                        'purchases' => $this->lastMonthInvoicedPurchase(), //DB::select('call current_month_invoiced_purchases'),
+                        'profit' => $this->lastMonthInvoicedSales() -  $this->lastMonthInvoicedPurchase(),
+                        'discounts' => DB::select('call last_month_invoiced_discounts'),
+                        'branches' => Branch::count(),
+                        'stores' => Store::count(),
+                    ],
+                    'yearly_sales' =>  DB::select("call yearly_sales"),
+                    'monthly_sales' => DB::select("call monthly_sales"),
+                    'stores' => DB::select("call stores"),
+                    'top_store' => DB::select('call heigh_sale_store'),
+                    'current_last_month_stores_sale' =>  DB::select('call current_last_month_stores_sale'),
+                    'top_last_month_store' => DB::select('call hiegh_sale_last_month_store')
+                ];
+            });
+
+            return response()->json($data);
         } catch (\Throwable $th) {
             return  response()->json($th->getMessage());
         }

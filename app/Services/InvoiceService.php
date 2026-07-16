@@ -9,6 +9,7 @@ use App\Events\InvoiceStored;
 use App\Events\InvoiceUpdated;
 use App\Events\InvoiceCancelled;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Cache;
 
 class InvoiceService
 {
@@ -63,6 +64,10 @@ class InvoiceService
 
             // Fire event for listeners (like FBR) to pick up
             event(new InvoiceStored($invoice));
+
+            // Invalidate branch products availability cache and dashboard cache
+            Cache::forget("branch.products.{$data['branch_id']}");
+            Cache::forget("dashboard.stats.all");
 
             return $invoice;
         });
@@ -146,6 +151,13 @@ class InvoiceService
             // Fire event for listeners
             event(new InvoiceUpdated($invoice, $oldUsin, $wasSubmitted));
 
+            // Invalidate branch products availability cache and dashboard cache
+            Cache::forget("branch.products.{$invoice->branch_id}");
+            if ($invoice->branch_id != $data['branch_id']) {
+                Cache::forget("branch.products.{$data['branch_id']}");
+            }
+            Cache::forget("dashboard.stats.all");
+
             return $invoice;
         });
     }
@@ -182,6 +194,10 @@ class InvoiceService
             }
 
             event(new InvoiceCancelled($invoice, $wasSubmitted));
+
+            // Invalidate branch products availability cache and dashboard cache
+            Cache::forget("branch.products.{$invoice->branch_id}");
+            Cache::forget("dashboard.stats.all");
 
             return $invoice;
         });
