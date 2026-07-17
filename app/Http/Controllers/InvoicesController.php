@@ -34,6 +34,50 @@ class InvoicesController extends Controller
         $this->invoiceRepository = $invoiceRepository;
     }
 
+    /**
+     * @OA\Get(
+     *     path="/invoices",
+     *     summary="Get paginated list of invoices",
+     *     tags={"Invoices"},
+     *     security={{"sanctum":{}}},
+     *     @OA\Parameter(
+     *         name="search",
+     *         in="query",
+     *         description="Search by quantity, price, or date",
+     *         required=false,
+     *         @OA\Schema(type="string")
+     *     ),
+     *     @OA\Parameter(
+     *         name="store_id",
+     *         in="query",
+     *         description="Filter by Store ID",
+     *         required=false,
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\Parameter(
+     *         name="branch_id",
+     *         in="query",
+     *         description="Filter by Branch ID",
+     *         required=false,
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\Parameter(
+     *         name="item_per_page",
+     *         in="query",
+     *         description="Number of items per page",
+     *         required=false,
+     *         @OA\Schema(type="integer", default=10)
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Successful invoice list retrieval"
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="Unauthorized / Unauthenticated"
+     *     )
+     * )
+     */
     function index(Request $request) {
         $this->authorize('invoice_access');
         $invoices = $this->invoiceRepository->paginatedList($request->all(), $request->item_per_page);
@@ -136,6 +180,64 @@ class InvoicesController extends Controller
         return [];
     }
 
+    /**
+     * @OA\Post(
+     *     path="/invoices/store",
+     *     summary="Create a new invoice",
+     *     tags={"Invoices"},
+     *     security={{"sanctum":{}}},
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             required={"store_id", "branch_id", "date", "sr_number", "total_qty", "total_price", "products"},
+     *             @OA\Property(property="store_id", type="integer", example=1),
+     *             @OA\Property(property="branch_id", type="integer", example=2),
+     *             @OA\Property(property="date", type="string", format="date", example="2026-07-17"),
+     *             @OA\Property(property="sr_number", type="string", example="SR-100234"),
+     *             @OA\Property(property="remarks", type="string", example="Standard cash sale"),
+     *             @OA\Property(property="total_qty", type="integer", example=5),
+     *             @OA\Property(property="total_price", type="number", format="float", example=500.00),
+     *             @OA\Property(
+     *                 property="products",
+     *                 type="array",
+     *                 @OA\Items(
+     *                     required={"id", "qty", "price", "sale_tax", "ext_tax"},
+     *                     @OA\Property(property="id", type="integer", example=1),
+     *                     @OA\Property(property="qty", type="integer", example=5),
+     *                     @OA\Property(property="price", type="number", format="float", example=100.00),
+     *                     @OA\Property(property="sale_tax", type="number", format="float", example=17.00),
+     *                     @OA\Property(property="ext_tax", type="number", format="float", example=2.00)
+     *                 )
+     *             ),
+     *             @OA\Property(
+     *                 property="return_products",
+     *                 type="array",
+     *                 @OA\Items(
+     *                     required={"id", "qty", "price", "sale_tax", "ext_tax"},
+     *                     @OA\Property(property="id", type="integer", example=2),
+     *                     @OA\Property(property="qty", type="integer", example=1),
+     *                     @OA\Property(property="price", type="number", format="float", example=100.00),
+     *                     @OA\Property(property="sale_tax", type="number", format="float", example=17.00),
+     *                     @OA\Property(property="ext_tax", type="number", format="float", example=2.00)
+     *                 )
+     *             )
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Invoice successfully created",
+     *         @OA\JsonContent(type="integer", example=152)
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="Unauthorized / Unauthenticated"
+     *     ),
+     *     @OA\Response(
+     *         response=422,
+     *         description="Validation failure"
+     *     )
+     * )
+     */
     function store(StoreInvoiceRequest $request, InvoiceService $invoiceService) {
         $this->authorize('invoice_save');
         $invoice = $invoiceService->store(
