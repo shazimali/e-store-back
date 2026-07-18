@@ -15,6 +15,26 @@ use Illuminate\Support\Facades\DB;
 
 class LedgersController extends Controller
 {
+    /**
+     * @OA\Get(
+     *     path="/ledgers",
+     *     summary="Index",
+     *     tags={"Ledgers"},
+     *     security={{"sanctum":{}}},
+     *     @OA\Response(
+     *         response=200,
+     *         description="Successful response"
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="Unauthenticated"
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Server error"
+     *     )
+     * )
+     */
     function index(Request $request) {
         $store_name = isset($request->store_id) &&  $request->store_id ? Store::where('id',$request->store_id)->first()->name : '';
         $branch_name = isset($request->branch_id) && $request->branch_id ? Branch::where('id',$request->branch_id)->first()->name : '';
@@ -54,14 +74,80 @@ class LedgersController extends Controller
         ]);
     }
 
+    /**
+     * @OA\Get(
+     *     path="/ledgers/fetch-stores",
+     *     summary="Fetch Stores",
+     *     tags={"Ledgers"},
+     *     security={{"sanctum":{}}},
+     *     @OA\Response(
+     *         response=200,
+     *         description="Successful response"
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="Unauthenticated"
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Server error"
+     *     )
+     * )
+     */
     function fetchStores() {
         return response()->json( StoreListResource::collection(Store::all())); 
     }
 
+    /**
+     * @OA\Get(
+     *     path="/ledgers/fetch-store-branches/{id}",
+     *     summary="Fetch Branches By Store I D",
+     *     tags={"Ledgers"},
+     *     security={{"sanctum":{}}},
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         required=true,
+     *         @OA\Schema(type="string")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Successful response"
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="Unauthenticated"
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Server error"
+     *     )
+     * )
+     */
     function fetchBranchesByStoreID($store_id) {
         return response()->json( BranchListResource::collection(Branch::where('store_id',$store_id)->get())); 
     }
 
+    /**
+     * @OA\Get(
+     *     path="/ledgers/profit-loss",
+     *     summary="Profit Loss",
+     *     tags={"Ledgers"},
+     *     security={{"sanctum":{}}},
+     *     @OA\Response(
+     *         response=200,
+     *         description="Successful response"
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="Unauthenticated"
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Server error"
+     *     )
+     * )
+     */
     function profitLoss(Request $request)  {
         $form_date = $request->from_date;
         $to_date = $request->to_date;

@@ -22,6 +22,26 @@ use Illuminate\Support\Facades\Cache;
 
 class DeliverablesController extends Controller
 {
+    /**
+     * @OA\Get(
+     *     path="/deliverables",
+     *     summary="Index",
+     *     tags={"Deliverables"},
+     *     security={{"sanctum":{}}},
+     *     @OA\Response(
+     *         response=200,
+     *         description="Successful response"
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="Unauthenticated"
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Server error"
+     *     )
+     * )
+     */
     function index(Request $request) {
         $this->authorize('deliverable_access');
         // $deliverables = Deliverable::notReturn()->paginate($request->item_per_page);
@@ -56,11 +76,57 @@ class DeliverablesController extends Controller
         return DeliverableListResource::collection($deliverables);
     }
 
+    /**
+     * @OA\Get(
+     *     path="/deliverables/create",
+     *     summary="Create",
+     *     tags={"Deliverables"},
+     *     security={{"sanctum":{}}},
+     *     @OA\Response(
+     *         response=200,
+     *         description="Successful response"
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="Unauthenticated"
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Server error"
+     *     )
+     * )
+     */
     function create() {
         $this->authorize('deliverable_create');
         return response()->json(StoreListResource::collection(Store::all()));
     }
 
+    /**
+     * @OA\Get(
+     *     path="/deliverables/store-branches-products/{id}",
+     *     summary="Fetch Store Branches Products",
+     *     tags={"Deliverables"},
+     *     security={{"sanctum":{}}},
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         required=true,
+     *         @OA\Schema(type="string")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Successful response"
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="Unauthenticated"
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Server error"
+     *     )
+     * )
+     */
     function fetchStoreBranchesProducts($id) {
         $this->authorize('deliverable_create');
         return response()->json([
@@ -69,6 +135,38 @@ class DeliverablesController extends Controller
         ]); 
     }
 
+    /**
+     * @OA\Get(
+     *     path="/deliverables/store-branches-products-edit/{store_id}/{deliverable_id}",
+     *     summary="Fetch Store Branches Products Edit",
+     *     tags={"Deliverables"},
+     *     security={{"sanctum":{}}},
+     *     @OA\Parameter(
+     *         name="store_id",
+     *         in="path",
+     *         required=true,
+     *         @OA\Schema(type="string")
+     *     ),
+     *     @OA\Parameter(
+     *         name="deliverable_id",
+     *         in="path",
+     *         required=true,
+     *         @OA\Schema(type="string")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Successful response"
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="Unauthenticated"
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Server error"
+     *     )
+     * )
+     */
     function fetchStoreBranchesProductsEdit($store_id,$deliverable_id) {
         $this->authorize('deliverable_edit');
         $edit_products = [];
@@ -111,6 +209,32 @@ class DeliverablesController extends Controller
         return $purchase - $delivered_qty;
     }
 
+    /**
+     * @OA\Post(
+     *     path="/deliverables/store",
+     *     summary="Store",
+     *     tags={"Deliverables"},
+     *     security={{"sanctum":{}}},
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             @OA\Property(property="placeholder", type="string", example="value")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Successful response"
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="Unauthenticated"
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Server error"
+     *     )
+     * )
+     */
     function store(StoreDeliverableRequest $request) {
         $this->authorize('deliverable_save');
         $data = $request->all();
@@ -134,10 +258,62 @@ class DeliverablesController extends Controller
         return  response()->json($deliverable->id);
     }
 
+    /**
+     * @OA\Get(
+     *     path="/deliverables/fetch-deliverable-for-print/{id}",
+     *     summary="Fetch Deliverable By Id",
+     *     tags={"Deliverables"},
+     *     security={{"sanctum":{}}},
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         required=true,
+     *         @OA\Schema(type="string")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Successful response"
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="Unauthenticated"
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Server error"
+     *     )
+     * )
+     */
     function fetchDeliverableById($id) {
         return new DeliverableShowResource(Deliverable::where('id',$id)->first());
     }
 
+    /**
+     * @OA\Get(
+     *     path="/deliverables/edit/{id}",
+     *     summary="Edit",
+     *     tags={"Deliverables"},
+     *     security={{"sanctum":{}}},
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         required=true,
+     *         @OA\Schema(type="string")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Successful response"
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="Unauthenticated"
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Server error"
+     *     )
+     * )
+     */
     function edit($id) {
         $this->authorize('deliverable_edit');
         try {
@@ -149,6 +325,38 @@ class DeliverablesController extends Controller
         
     }
 
+    /**
+     * @OA\Put(
+     *     path="/deliverables/update/{id}",
+     *     summary="Update",
+     *     tags={"Deliverables"},
+     *     security={{"sanctum":{}}},
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         required=true,
+     *         @OA\Schema(type="string")
+     *     ),
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             @OA\Property(property="placeholder", type="string", example="value")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Successful response"
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="Unauthenticated"
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Server error"
+     *     )
+     * )
+     */
     function update(UpdateDeliverableRequest $request, $id) {
         $this->authorize('deliverable_edit');
         $deliverable = Deliverable::where('id',$id)->first();

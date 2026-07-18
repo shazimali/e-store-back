@@ -15,11 +15,57 @@ use Illuminate\Http\Request;
 
 class StocksController extends Controller
 {
+    /**
+     * @OA\Get(
+     *     path="/stocks",
+     *     summary="Index",
+     *     tags={"Stocks"},
+     *     security={{"sanctum":{}}},
+     *     @OA\Response(
+     *         response=200,
+     *         description="Successful response"
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="Unauthenticated"
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Server error"
+     *     )
+     * )
+     */
     function index(Request $request) {
         $this->authorize('stock_access');
         return response()->json( StoreListResource::collection(Store::all())); 
     }
 
+    /**
+     * @OA\Get(
+     *     path="/stocks/fetch-branches/{id}",
+     *     summary="Fetch Branches By Store Id",
+     *     tags={"Stocks"},
+     *     security={{"sanctum":{}}},
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         required=true,
+     *         @OA\Schema(type="string")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Successful response"
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="Unauthenticated"
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Server error"
+     *     )
+     * )
+     */
     function fetchBranchesByStoreId($id) {
         $this->authorize('stock_access');
        $branches =  Branch::where('store_id',$id)->get();
@@ -62,6 +108,32 @@ class StocksController extends Controller
         
     }
 
+    /**
+     * @OA\Get(
+     *     path="/stocks/fetch-branch-stock/{id}",
+     *     summary="Fetch Stock By Branch Id",
+     *     tags={"Stocks"},
+     *     security={{"sanctum":{}}},
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         required=true,
+     *         @OA\Schema(type="string")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Successful response"
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="Unauthenticated"
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Server error"
+     *     )
+     * )
+     */
     function fetchStockByBranchId($id) {
         $this->authorize('stock_access');
         $branch = Branch::with('store')->where('id',$id)->first();

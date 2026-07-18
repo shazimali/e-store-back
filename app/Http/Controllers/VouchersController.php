@@ -19,6 +19,26 @@ use Illuminate\Http\Request;
 class VouchersController extends Controller
 {
 
+    /**
+     * @OA\Get(
+     *     path="/vouchers",
+     *     summary="Index",
+     *     tags={"Vouchers"},
+     *     security={{"sanctum":{}}},
+     *     @OA\Response(
+     *         response=200,
+     *         description="Successful response"
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="Unauthenticated"
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Server error"
+     *     )
+     * )
+     */
     function index(Request $request) {
         
         $this->authorize('deliverable_save');
@@ -34,6 +54,32 @@ class VouchersController extends Controller
         return VoucherListResource::collection($vouchers);
     }
 
+    /**
+     * @OA\Post(
+     *     path="/vouchers/store",
+     *     summary="Store",
+     *     tags={"Vouchers"},
+     *     security={{"sanctum":{}}},
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             @OA\Property(property="placeholder", type="string", example="value")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Successful response"
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="Unauthenticated"
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Server error"
+     *     )
+     * )
+     */
     function store(StoreVoucherRequest $request) {
         
         $this->authorize('deliverable_save');
@@ -43,14 +89,86 @@ class VouchersController extends Controller
         return response()->json( $voucher->id);
     }
 
+    /**
+     * @OA\Get(
+     *     path="/vouchers/fetch-stores",
+     *     summary="Fetch Stores",
+     *     tags={"Vouchers"},
+     *     security={{"sanctum":{}}},
+     *     @OA\Response(
+     *         response=200,
+     *         description="Successful response"
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="Unauthenticated"
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Server error"
+     *     )
+     * )
+     */
     function fetchStores() {
         return response()->json(StoreListResource::collection(Store::get()));
     }
 
+    /**
+     * @OA\Get(
+     *     path="/vouchers/fetch-store-branches/{id}",
+     *     summary="Fetch Branches By Store I D",
+     *     tags={"Vouchers"},
+     *     security={{"sanctum":{}}},
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         required=true,
+     *         @OA\Schema(type="string")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Successful response"
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="Unauthenticated"
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Server error"
+     *     )
+     * )
+     */
     function fetchBranchesByStoreID($branch_id) {
         return response()->json(BranchListResource::collection(Branch::where('store_id',$branch_id)->get()));
     }
 
+    /**
+     * @OA\Get(
+     *     path="/vouchers/fetch-branch-balance/{id}",
+     *     summary="Fetch Balance By Branch I D",
+     *     tags={"Vouchers"},
+     *     security={{"sanctum":{}}},
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         required=true,
+     *         @OA\Schema(type="string")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Successful response"
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="Unauthenticated"
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Server error"
+     *     )
+     * )
+     */
     function fetchBalanceByBranchID($branch_id) {
         $total = Invoice::where('branch_id',$branch_id)->sum('total_price');
         $vouchers = Voucher::where('branch_id',$branch_id)->sum('amount');
@@ -59,14 +177,98 @@ class VouchersController extends Controller
         return response()->json($total - $collected);
     }
 
+    /**
+     * @OA\Get(
+     *     path="/vouchers/fetch-voucher/{id}",
+     *     summary="Fetch Voucher By I D",
+     *     tags={"Vouchers"},
+     *     security={{"sanctum":{}}},
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         required=true,
+     *         @OA\Schema(type="string")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Successful response"
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="Unauthenticated"
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Server error"
+     *     )
+     * )
+     */
     function fetchVoucherByID($id) {
         return response()->json(new VoucherShowResource(Voucher::findOrFail($id)));
     }
 
+    /**
+     * @OA\Get(
+     *     path="/vouchers/edit/{id}",
+     *     summary="Edit",
+     *     tags={"Vouchers"},
+     *     security={{"sanctum":{}}},
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         required=true,
+     *         @OA\Schema(type="string")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Successful response"
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="Unauthenticated"
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Server error"
+     *     )
+     * )
+     */
     function edit($id) {
         return response()->json(new VoucherEditResource(Voucher::find($id)));
     }
 
+    /**
+     * @OA\Put(
+     *     path="/vouchers/update/{id}",
+     *     summary="Update",
+     *     tags={"Vouchers"},
+     *     security={{"sanctum":{}}},
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         required=true,
+     *         @OA\Schema(type="string")
+     *     ),
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             @OA\Property(property="placeholder", type="string", example="value")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Successful response"
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="Unauthenticated"
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Server error"
+     *     )
+     * )
+     */
     function update($id, StoreVoucherRequest $request) {
             $voucher = Voucher::where('id',$id)->first();
             $voucher->update([

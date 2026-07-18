@@ -12,6 +12,26 @@ use Illuminate\Http\Request;
 
 class BranchesController extends Controller
 {
+    /**
+     * @OA\Get(
+     *     path="/branches",
+     *     summary="Index",
+     *     tags={"Branches"},
+     *     security={{"sanctum":{}}},
+     *     @OA\Response(
+     *         response=200,
+     *         description="Successful response"
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="Unauthenticated"
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Server error"
+     *     )
+     * )
+     */
     function index(Request $request) {
         $this->authorize('branch_access');
             $branches = Branch::with('city')->paginate($request->item_per_page);;
@@ -47,6 +67,26 @@ class BranchesController extends Controller
         return BranchListResource::collection($branches);
     }
 
+    /**
+     * @OA\Get(
+     *     path="/branches/create",
+     *     summary="Create",
+     *     tags={"Branches"},
+     *     security={{"sanctum":{}}},
+     *     @OA\Response(
+     *         response=200,
+     *         description="Successful response"
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="Unauthenticated"
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Server error"
+     *     )
+     * )
+     */
     function create(){
         $this->authorize('branch_create');
         try {
@@ -59,6 +99,32 @@ class BranchesController extends Controller
         }
     }
 
+    /**
+     * @OA\Post(
+     *     path="/branches/save",
+     *     summary="Save",
+     *     tags={"Branches"},
+     *     security={{"sanctum":{}}},
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             @OA\Property(property="placeholder", type="string", example="value")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Successful response"
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="Unauthenticated"
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Server error"
+     *     )
+     * )
+     */
     function save(StoreBranchRequest $request){
         $this->authorize('branch_save');
         try {
@@ -69,6 +135,32 @@ class BranchesController extends Controller
         }
     }
 
+    /**
+     * @OA\Get(
+     *     path="/branches/edit/{id}",
+     *     summary="Edit",
+     *     tags={"Branches"},
+     *     security={{"sanctum":{}}},
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         required=true,
+     *         @OA\Schema(type="string")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Successful response"
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="Unauthenticated"
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Server error"
+     *     )
+     * )
+     */
     function edit($id){
         $this->authorize('branch_edit');
         try {
@@ -79,6 +171,38 @@ class BranchesController extends Controller
         }
     }
 
+    /**
+     * @OA\Put(
+     *     path="/branches/update/{id}",
+     *     summary="Update",
+     *     tags={"Branches"},
+     *     security={{"sanctum":{}}},
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         required=true,
+     *         @OA\Schema(type="string")
+     *     ),
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             @OA\Property(property="placeholder", type="string", example="value")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Successful response"
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="Unauthenticated"
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Server error"
+     *     )
+     * )
+     */
 function update(UpdateBranchRequest $request, $id)   {
         $this->authorize('branch_edit');
         try {

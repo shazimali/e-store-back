@@ -18,6 +18,26 @@ use Illuminate\Http\Request;
 
 class DiscountsController extends Controller
 {
+    /**
+     * @OA\Get(
+     *     path="/discounts",
+     *     summary="Index",
+     *     tags={"Discounts"},
+     *     security={{"sanctum":{}}},
+     *     @OA\Response(
+     *         response=200,
+     *         description="Successful response"
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="Unauthenticated"
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Server error"
+     *     )
+     * )
+     */
     function index(Request $request) {
         
         $this->authorize('deliverable_save');
@@ -33,6 +53,32 @@ class DiscountsController extends Controller
         return DiscountListResource::collection($discounts);
     }
 
+    /**
+     * @OA\Post(
+     *     path="/discounts/store",
+     *     summary="Store",
+     *     tags={"Discounts"},
+     *     security={{"sanctum":{}}},
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             @OA\Property(property="placeholder", type="string", example="value")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Successful response"
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="Unauthenticated"
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Server error"
+     *     )
+     * )
+     */
     function store(StoreDiscountRequest $request) {
         
         $this->authorize('deliverable_save');
@@ -44,14 +90,86 @@ class DiscountsController extends Controller
         return response()->json( $discount->id);
     }
 
+    /**
+     * @OA\Get(
+     *     path="/discounts/fetch-stores",
+     *     summary="Fetch Stores",
+     *     tags={"Discounts"},
+     *     security={{"sanctum":{}}},
+     *     @OA\Response(
+     *         response=200,
+     *         description="Successful response"
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="Unauthenticated"
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Server error"
+     *     )
+     * )
+     */
     function fetchStores() {
         return response()->json(StoreListResource::collection(Store::get()));
     }
 
+    /**
+     * @OA\Get(
+     *     path="/discounts/fetch-store-branches/{id}",
+     *     summary="Fetch Branches By Store I D",
+     *     tags={"Discounts"},
+     *     security={{"sanctum":{}}},
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         required=true,
+     *         @OA\Schema(type="string")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Successful response"
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="Unauthenticated"
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Server error"
+     *     )
+     * )
+     */
     function fetchBranchesByStoreID($branch_id) {
         return response()->json(BranchListResource::collection(Branch::where('store_id',$branch_id)->get()));
     }
 
+    /**
+     * @OA\Get(
+     *     path="/discounts/fetch-branch-balance-and-invoices/{id}",
+     *     summary="Fetch Balance And Invoices By Branch I D",
+     *     tags={"Discounts"},
+     *     security={{"sanctum":{}}},
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         required=true,
+     *         @OA\Schema(type="string")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Successful response"
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="Unauthenticated"
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Server error"
+     *     )
+     * )
+     */
     function fetchBalanceAndInvoicesByBranchID($branch_id) {
         $invoices = Invoice::where('branch_id',$branch_id)->get();
         $discounts = Discount::where('branch_id',$branch_id)->sum('amount');
@@ -63,10 +181,68 @@ class DiscountsController extends Controller
     }
 
 
+    /**
+     * @OA\Get(
+     *     path="/discounts/edit/{id}",
+     *     summary="Edit",
+     *     tags={"Discounts"},
+     *     security={{"sanctum":{}}},
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         required=true,
+     *         @OA\Schema(type="string")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Successful response"
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="Unauthenticated"
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Server error"
+     *     )
+     * )
+     */
     function edit($id) {
         return response()->json(new DiscountEditResource(Discount::find($id)));
     }
 
+    /**
+     * @OA\Put(
+     *     path="/discounts/update/{id}",
+     *     summary="Update",
+     *     tags={"Discounts"},
+     *     security={{"sanctum":{}}},
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         required=true,
+     *         @OA\Schema(type="string")
+     *     ),
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             @OA\Property(property="placeholder", type="string", example="value")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Successful response"
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="Unauthenticated"
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Server error"
+     *     )
+     * )
+     */
     function update($id, UpdateDiscountRequest $request) {
             $discount = Discount::where('id',$id)->first();
             $invoice_detail = Invoice::where('invoice_id',$request->invoice_id)->first();

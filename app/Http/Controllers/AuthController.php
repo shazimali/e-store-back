@@ -53,16 +53,79 @@ class AuthController extends Controller
         return $this->authService->getToken($request);
     }
 
+    /**
+     * @OA\Post(
+     *     path="/logout",
+     *     summary="Log Out",
+     *     tags={"Auth"},
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             @OA\Property(property="placeholder", type="string", example="value")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Successful response"
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Server error"
+     *     )
+     * )
+     */
     public function logOut(Request $request)
     {
         return $this->authService->logOut($request->id);
     }
 
+    /**
+     * @OA\Post(
+     *     path="/forgot-password",
+     *     summary="Forgot Password",
+     *     tags={"Auth"},
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             @OA\Property(property="placeholder", type="string", example="value")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Successful response"
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Server error"
+     *     )
+     * )
+     */
     public function forgotPassword(ForgotPasswordRequest $request)
     {
         return $this->authService->forgotPassword($request);
     }
 
+    /**
+     * @OA\Post(
+     *     path="/reset-password",
+     *     summary="Reset Password",
+     *     tags={"Auth"},
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             @OA\Property(property="placeholder", type="string", example="value")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Successful response"
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Server error"
+     *     )
+     * )
+     */
     public function resetPassword(ResetPasswordRequest $request)
     {
         return $this->authService->resetPassword($request);

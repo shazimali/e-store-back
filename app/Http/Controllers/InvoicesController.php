@@ -84,6 +84,26 @@ class InvoicesController extends Controller
         return InvoiceListResoruce::collection($invoices);
     }
 
+    /**
+     * @OA\Get(
+     *     path="/invoices/create",
+     *     summary="Create",
+     *     tags={"Invoices"},
+     *     security={{"sanctum":{}}},
+     *     @OA\Response(
+     *         response=200,
+     *         description="Successful response"
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="Unauthenticated"
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Server error"
+     *     )
+     * )
+     */
     function create() {
         $this->authorize('invoice_create');
         return response()->json([
@@ -92,11 +112,63 @@ class InvoicesController extends Controller
         ]);
     }
 
+    /**
+     * @OA\Get(
+     *     path="/invoices/fetch-store-branches/{id}",
+     *     summary="Fetch Store Branches",
+     *     tags={"Invoices"},
+     *     security={{"sanctum":{}}},
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         required=true,
+     *         @OA\Schema(type="string")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Successful response"
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="Unauthenticated"
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Server error"
+     *     )
+     * )
+     */
     function fetchStoreBranches($id) {
         $this->authorize('invoice_create');
         return response()->json(BranchListResource::collection(Branch::where('store_id',$id)->get()));
     }
 
+    /**
+     * @OA\Get(
+     *     path="/invoices/fetch-branch-products/{id}",
+     *     summary="Fetch Branch Products",
+     *     tags={"Invoices"},
+     *     security={{"sanctum":{}}},
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         required=true,
+     *         @OA\Schema(type="string")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Successful response"
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="Unauthenticated"
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Server error"
+     *     )
+     * )
+     */
     function fetchBranchProducts($branch_id) {
         $this->authorize('invoice_create');
         
@@ -140,6 +212,38 @@ class InvoicesController extends Controller
         });
     }
 
+    /**
+     * @OA\Get(
+     *     path="/invoices/edit/fetch-branch-products/{branch_id}/{invoice_id}",
+     *     summary="Fetch Branch Products Edit",
+     *     tags={"Invoices"},
+     *     security={{"sanctum":{}}},
+     *     @OA\Parameter(
+     *         name="branch_id",
+     *         in="path",
+     *         required=true,
+     *         @OA\Schema(type="string")
+     *     ),
+     *     @OA\Parameter(
+     *         name="invoice_id",
+     *         in="path",
+     *         required=true,
+     *         @OA\Schema(type="string")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Successful response"
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="Unauthenticated"
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Server error"
+     *     )
+     * )
+     */
     function fetchBranchProductsEdit($branch_id,$invoice_id) {
         $this->authorize('invoice_edit');
         $productIds = [];
@@ -248,11 +352,63 @@ class InvoicesController extends Controller
         return response()->json($invoice->id);
     }
 
+    /**
+     * @OA\Get(
+     *     path="/invoices/fetch-invoice-for-print/{id}",
+     *     summary="Fetch Invoice By Id",
+     *     tags={"Invoices"},
+     *     security={{"sanctum":{}}},
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         required=true,
+     *         @OA\Schema(type="string")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Successful response"
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="Unauthenticated"
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Server error"
+     *     )
+     * )
+     */
     function fetchInvoiceById($id) {
         $this->authorize('invoice_access');
         return new InvoiceShowResource($this->invoiceRepository->findById($id));
     }
 
+    /**
+     * @OA\Get(
+     *     path="/invoices/edit/{id}",
+     *     summary="Edit",
+     *     tags={"Invoices"},
+     *     security={{"sanctum":{}}},
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         required=true,
+     *         @OA\Schema(type="string")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Successful response"
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="Unauthenticated"
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Server error"
+     *     )
+     * )
+     */
     function edit($id) {
         $this->authorize('invoice_edit');
         $invoice = $this->invoiceRepository->findWithDetails($id);
@@ -332,6 +488,38 @@ class InvoicesController extends Controller
         return response()->json($data,200);
     }
 
+    /**
+     * @OA\Post(
+     *     path="/invoices/update/{id}",
+     *     summary="Update",
+     *     tags={"Invoices"},
+     *     security={{"sanctum":{}}},
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         required=true,
+     *         @OA\Schema(type="string")
+     *     ),
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             @OA\Property(property="placeholder", type="string", example="value")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Successful response"
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="Unauthenticated"
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Server error"
+     *     )
+     * )
+     */
     function update(UpdateInvoiceRequest $request, $id, InvoiceService $invoiceService) {
         $this->authorize('invoice_edit');
         $invoice = $this->invoiceRepository->findById($id);
@@ -347,6 +535,32 @@ class InvoicesController extends Controller
         return response()->json($invoice->id);
     }
 
+    /**
+     * @OA\Delete(
+     *     path="/invoices/delete/{id}",
+     *     summary="Destroy",
+     *     tags={"Invoices"},
+     *     security={{"sanctum":{}}},
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         required=true,
+     *         @OA\Schema(type="string")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Successful response"
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="Unauthenticated"
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Server error"
+     *     )
+     * )
+     */
     function destroy($id, InvoiceService $invoiceService) {
         $this->authorize('invoice_delete');
         $invoice = $this->invoiceRepository->findById($id);

@@ -15,6 +15,26 @@ use Illuminate\Http\Request;
 
 class PurchasesController extends Controller
 {
+    /**
+     * @OA\Get(
+     *     path="/purchases",
+     *     summary="Index",
+     *     tags={"Purchases"},
+     *     security={{"sanctum":{}}},
+     *     @OA\Response(
+     *         response=200,
+     *         description="Successful response"
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="Unauthenticated"
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Server error"
+     *     )
+     * )
+     */
     function index(Request $request) {
         $this->authorize('purchase_access');
         $purchases = Purchase::paginate($request->item_per_page);
@@ -30,12 +50,58 @@ class PurchasesController extends Controller
         return PurchaseListResource::collection($purchases);
     }
 
+    /**
+     * @OA\Get(
+     *     path="/purchases/create",
+     *     summary="Create",
+     *     tags={"Purchases"},
+     *     security={{"sanctum":{}}},
+     *     @OA\Response(
+     *         response=200,
+     *         description="Successful response"
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="Unauthenticated"
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Server error"
+     *     )
+     * )
+     */
     function create() {
         $this->authorize('purchase_create');
 
         return ProductsListResource::collection(Product::all());
     }
 
+    /**
+     * @OA\Post(
+     *     path="/purchases/store",
+     *     summary="Store",
+     *     tags={"Purchases"},
+     *     security={{"sanctum":{}}},
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             @OA\Property(property="placeholder", type="string", example="value")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Successful response"
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="Unauthenticated"
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Server error"
+     *     )
+     * )
+     */
     function store(StorePurchaseRequest $request) {
         $this->authorize('purchase_save');
 
@@ -54,6 +120,32 @@ class PurchasesController extends Controller
         return  response()->json('Purchase completed successfully!');
     }
 
+    /**
+     * @OA\Get(
+     *     path="/purchases/edit/{id}",
+     *     summary="Edit",
+     *     tags={"Purchases"},
+     *     security={{"sanctum":{}}},
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         required=true,
+     *         @OA\Schema(type="string")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Successful response"
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="Unauthenticated"
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Server error"
+     *     )
+     * )
+     */
     function edit($id) {
         $this->authorize('purchase_edit');
 
@@ -66,6 +158,38 @@ class PurchasesController extends Controller
         
     }
 
+    /**
+     * @OA\Put(
+     *     path="/purchases/update/{id}",
+     *     summary="Update",
+     *     tags={"Purchases"},
+     *     security={{"sanctum":{}}},
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         required=true,
+     *         @OA\Schema(type="string")
+     *     ),
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             @OA\Property(property="placeholder", type="string", example="value")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Successful response"
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="Unauthenticated"
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Server error"
+     *     )
+     * )
+     */
     function update(StorePurchaseRequest $request, $id) {
         $this->authorize('purchase_edit');
         
@@ -91,6 +215,32 @@ class PurchasesController extends Controller
         return  response()->json('Purchase updated successfully!');
     }
 
+    /**
+     * @OA\Get(
+     *     path="/purchases/fetch-for-print/{id}",
+     *     summary="Fetch For Print",
+     *     tags={"Purchases"},
+     *     security={{"sanctum":{}}},
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         required=true,
+     *         @OA\Schema(type="string")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Successful response"
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="Unauthenticated"
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Server error"
+     *     )
+     * )
+     */
     function fetchForPrint($id){
         return new PurchaseShowPrintResource(Purchase::findOrFail($id));
     }

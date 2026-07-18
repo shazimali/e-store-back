@@ -19,6 +19,26 @@ use Illuminate\Support\Facades\DB;
 
 class StoresController extends Controller
 {
+    /**
+     * @OA\Get(
+     *     path="/stores",
+     *     summary="Index",
+     *     tags={"Stores"},
+     *     security={{"sanctum":{}}},
+     *     @OA\Response(
+     *         response=200,
+     *         description="Successful response"
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="Unauthenticated"
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Server error"
+     *     )
+     * )
+     */
     function index(Request $request) {
         $this->authorize('store_access');
         $stores = Store::with('city')->paginate($request->item_per_page);
@@ -36,6 +56,26 @@ class StoresController extends Controller
         return StoreListResource::collection($stores);
     }
 
+    /**
+     * @OA\Get(
+     *     path="/stores/create",
+     *     summary="Create",
+     *     tags={"Stores"},
+     *     security={{"sanctum":{}}},
+     *     @OA\Response(
+     *         response=200,
+     *         description="Successful response"
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="Unauthenticated"
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Server error"
+     *     )
+     * )
+     */
     function create(){
         $this->authorize('store_create');
         try {
@@ -45,6 +85,32 @@ class StoresController extends Controller
         }
     }
 
+    /**
+     * @OA\Post(
+     *     path="/stores/save",
+     *     summary="Save",
+     *     tags={"Stores"},
+     *     security={{"sanctum":{}}},
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             @OA\Property(property="placeholder", type="string", example="value")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Successful response"
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="Unauthenticated"
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Server error"
+     *     )
+     * )
+     */
     function save(SaveStoreRequest $request){
         $this->authorize('store_save');
         try {
@@ -55,6 +121,32 @@ class StoresController extends Controller
         }
     }
 
+    /**
+     * @OA\Get(
+     *     path="/stores/edit/{id}",
+     *     summary="Edit",
+     *     tags={"Stores"},
+     *     security={{"sanctum":{}}},
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         required=true,
+     *         @OA\Schema(type="string")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Successful response"
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="Unauthenticated"
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Server error"
+     *     )
+     * )
+     */
     function edit($id){
         $this->authorize('store_edit');
         try {
@@ -65,6 +157,38 @@ class StoresController extends Controller
         }
     }
 
+    /**
+     * @OA\Put(
+     *     path="/stores/update/{id}",
+     *     summary="Update",
+     *     tags={"Stores"},
+     *     security={{"sanctum":{}}},
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         required=true,
+     *         @OA\Schema(type="string")
+     *     ),
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             @OA\Property(property="placeholder", type="string", example="value")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Successful response"
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="Unauthenticated"
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Server error"
+     *     )
+     * )
+     */
 function update(UpdateStoreRequest $request, $id)   {
         $this->authorize('store_edit');
         try {
@@ -75,6 +199,32 @@ function update(UpdateStoreRequest $request, $id)   {
             return  response()->json(['error' => 'Error in saving store.'],422);
         }
     }
+    /**
+     * @OA\Get(
+     *     path="/stores/dashboard/{id}",
+     *     summary="Dashboard By Store Id",
+     *     tags={"Stores"},
+     *     security={{"sanctum":{}}},
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         required=true,
+     *         @OA\Schema(type="string")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Successful response"
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="Unauthenticated"
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Server error"
+     *     )
+     * )
+     */
 function dashboardByStoreId($store_id){
     $id = (int)$store_id;
     try {

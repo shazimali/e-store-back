@@ -12,6 +12,26 @@ use Illuminate\Http\Request;
 
 class ProductsController extends Controller
 {
+    /**
+     * @OA\Get(
+     *     path="/products",
+     *     summary="Index",
+     *     tags={"Products"},
+     *     security={{"sanctum":{}}},
+     *     @OA\Response(
+     *         response=200,
+     *         description="Successful response"
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="Unauthenticated"
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Server error"
+     *     )
+     * )
+     */
     function index(Request $request)  {
         $this->authorize('product_access');
         
@@ -44,6 +64,26 @@ class ProductsController extends Controller
         return ProductsListResource::collection($products);
     }
 
+    /**
+     * @OA\Get(
+     *     path="/products/create",
+     *     summary="Create",
+     *     tags={"Products"},
+     *     security={{"sanctum":{}}},
+     *     @OA\Response(
+     *         response=200,
+     *         description="Successful response"
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="Unauthenticated"
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Server error"
+     *     )
+     * )
+     */
     function create() {
         $this->authorize('product_create');
         try {
@@ -53,6 +93,32 @@ class ProductsController extends Controller
         }
     }
 
+    /**
+     * @OA\Post(
+     *     path="/products/store",
+     *     summary="Store",
+     *     tags={"Products"},
+     *     security={{"sanctum":{}}},
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             @OA\Property(property="placeholder", type="string", example="value")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Successful response"
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="Unauthenticated"
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Server error"
+     *     )
+     * )
+     */
     function store(StoreProductRequest  $request)   {
         $this->authorize('product_create');
         try {
@@ -64,6 +130,32 @@ class ProductsController extends Controller
 
     }
 
+    /**
+     * @OA\Get(
+     *     path="/products/edit/{id}",
+     *     summary="Edit",
+     *     tags={"Products"},
+     *     security={{"sanctum":{}}},
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         required=true,
+     *         @OA\Schema(type="string")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Successful response"
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="Unauthenticated"
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Server error"
+     *     )
+     * )
+     */
     function edit($id)   {
         $this->authorize('product_edit');
         
@@ -76,6 +168,38 @@ class ProductsController extends Controller
 
     }
 
+    /**
+     * @OA\Post(
+     *     path="/products/update/{id}",
+     *     summary="Update",
+     *     tags={"Products"},
+     *     security={{"sanctum":{}}},
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         required=true,
+     *         @OA\Schema(type="string")
+     *     ),
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             @OA\Property(property="placeholder", type="string", example="value")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Successful response"
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="Unauthenticated"
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Server error"
+     *     )
+     * )
+     */
     function update(UpdateProductRequest $request, $id)   {
         $this->authorize('product_update');
         try {
@@ -88,6 +212,38 @@ class ProductsController extends Controller
 
     }
 
+    /**
+     * @OA\Put(
+     *     path="/products/update/sale-price/{id}",
+     *     summary="Update Sale Price",
+     *     tags={"Products"},
+     *     security={{"sanctum":{}}},
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         required=true,
+     *         @OA\Schema(type="string")
+     *     ),
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             @OA\Property(property="placeholder", type="string", example="value")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Successful response"
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="Unauthenticated"
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Server error"
+     *     )
+     * )
+     */
     function updateSalePrice($id,UpdateProductSalePriceRequest $request) {
         $product = Product::find($id);
         $product->sale_price = $request->sale_price;
