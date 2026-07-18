@@ -1,4 +1,4 @@
-name: 🚀 Deploy Everyday Store Backend (Fast)
+name: 🚀 Deploy Backend
 
 on:
   push:
@@ -11,7 +11,22 @@ on:
       - 'docker/**'
 
 env:
-  IMAGE_NAME: shazimali/everyday-store-backend
+  # ── Stored as GitHub Secrets (Settings → Secrets → Actions) ──────────────
+  # DOCKER_IMAGE_NAME  e.g. youruser/your-image-name
+  # VPS_APP_PATH       e.g. /var/www/myapp/backend
+  # CONTAINER_PORT     e.g. 8082
+  # DOCKER_NETWORK     e.g. global_network
+  # CONTAINER_APP_NAME e.g. my_backend_app
+  IMAGE_NAME:     ${{ secrets.DOCKER_IMAGE_NAME }}
+  VPS_APP_PATH:   ${{ secrets.VPS_APP_PATH }}
+  CONTAINER_NAME: ${{ secrets.CONTAINER_APP_NAME }}
+  CONTAINER_PORT: ${{ secrets.CONTAINER_PORT }}
+  DOCKER_NETWORK: ${{ secrets.DOCKER_NETWORK }}
+
+  # ── Volume names are NOT secrets – keep them explicit so existing ─────────
+  # ── Docker volumes on the VPS are reused and no data is lost.    ─────────
+  STORAGE_VOLUME: ${{ secrets.STORAGE_VOLUME_NAME }}
+  CACHE_VOLUME:   ${{ secrets.CACHE_VOLUME_NAME }}
 
 jobs:
   build-and-deploy:
@@ -53,30 +68,28 @@ jobs:
           host: ${{ secrets.VPS_HOST }}
           username: ${{ secrets.VPS_USER }}
           key: ${{ secrets.VPS_SSH_KEY }}
+          envs: IMAGE_NAME,VPS_APP_PATH,CONTAINER_NAME,CONTAINER_PORT,DOCKER_NETWORK,STORAGE_VOLUME,CACHE_VOLUME
           script: |
             set -e
-            cd /var/www/everyday_store/backend
+            cd $VPS_APP_PATH
 
-            docker pull ${{ env.IMAGE_NAME }}:latest
+            docker pull $IMAGE_NAME:latest
 
-            docker rm -f everyday_store_backend_app || true
+            docker rm -f $CONTAINER_NAME || true
 
             docker run -d \
-              --name everyday_store_backend_app \
+              --name $CONTAINER_NAME \
               --restart unless-stopped \
               --env-file .env \
-              -v everyday_store_backend_storage:/var/www/everyday_store/backend/storage \
-              -v everyday_store_backend_cache:/var/www/everyday_store/backend/bootstrap/cache \
-              --network global_network \
-              -p 8082:80 \
-              ${{ env.IMAGE_NAME }}:latest
+              -v $STORAGE_VOLUME:$VPS_APP_PATH/storage \
+              -v $CACHE_VOLUME:$VPS_APP_PATH/bootstrap/cache \
+              --network $DOCKER_NETWORK \
+              -p $CONTAINER_PORT:80 \
+              $IMAGE_NAME:latest
 
             echo "⏳ Waiting for container to be healthy..."
             for i in $(seq 1 30); do
-              # curl -s (no -f): exits 0 on ANY HTTP response (200, 404, etc.)
-              # Only fails on network errors (connection refused = truly down)
-              # 404 is expected for GET / on an API-only Laravel app — server IS healthy
-              if curl -s http://localhost:8082 > /dev/null 2>&1; then
+              if curl -s http://localhost:$CONTAINER_PORT > /dev/null 2>&1; then
                 echo "✅ Container is up and responding!"
                 exit 0
               fi
@@ -86,7 +99,7 @@ jobs:
 
             echo "❌ Container did not respond after 150s. Diagnostics:"
             echo "--- docker ps ---"
-            docker ps -a | grep everyday_store_backend_app
+            docker ps -a | grep $CONTAINER_NAME
             echo "--- container logs ---"
-            docker logs --tail=100 everyday_store_backend_app
+            docker logs --tail=100 $CONTAINER_NAME
             exit 1
