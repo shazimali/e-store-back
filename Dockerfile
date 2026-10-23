@@ -1,7 +1,8 @@
 # ==================================================
 # Stage 1: Base PHP Image
 # ==================================================
-FROM php:8.2-apache AS base
+# Pinned to >= 8.2.35 for CVE-2026-109618 / CVE-2026-109619
+FROM php:8.2.35-apache AS base
 
 RUN apt-get update && apt-get install -y \
     git unzip curl supervisor \
@@ -58,6 +59,9 @@ COPY . .
 # Apache config
 RUN echo "ServerName api.everydaypak.com" >> /etc/apache2/apache2.conf
 COPY docker/apache/000-default.conf /etc/apache2/sites-available/000-default.conf
+
+# PHP security overrides
+COPY docker/php/security.ini /usr/local/etc/php/conf.d/zz-security.ini
 
 # Supervisor config
 COPY docker/supervisor/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
